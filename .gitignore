@@ -1,3 +1,9 @@
+.idea
+bin
+_secret_auth_.json
+pyvenv.cfg
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
