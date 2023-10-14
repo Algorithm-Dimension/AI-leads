@@ -10,7 +10,7 @@ __pycache__/
 *$py.class
 
 # Remove Raph A perso fold
-perso_raph/
+src/perso_raph/
 
 # C extensions
 *.so
