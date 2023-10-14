@@ -11,6 +11,7 @@ __pycache__/
 
 # Remove Raph A perso fold
 src/perso_raph/
+src/Config/config_safe.py
 
 # C extensions
 *.so
