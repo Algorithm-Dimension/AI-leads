@@ -9,6 +9,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Remove Raph A perso fold
+perso_raph/
+
 # C extensions
 *.so
 
