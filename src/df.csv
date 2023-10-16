@@ -1,4 +1,4 @@
-﻿prenom;age;job
-eve;26;back
-avi;1;bibi
-rem;31;data
+Poste;Entreprise;Lieu;Date;contacté ?
+Data Scientist;Microsoft;Paris;2023-01-01;oui
+Software;Microsoft;Paris;2023-01-10; 
+RH;Meta;Paris;2023-01-20; 
