@@ -4,8 +4,14 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import logging
 
-def change_page_indeed(driver, url, i, wait_time=5):
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def next_page_indeed(driver, url, wait_time=5):
     """
     Click the "Page i" button on a webpage using Selenium.
 
@@ -21,27 +27,26 @@ def change_page_indeed(driver, url, i, wait_time=5):
 
     # Configuration du navigateur avec un proxy (facultatif)
     # options.add_argument('--proxy-server=http://your-proxy-server.com:port')
-    i = str(i)
     try:
         driver.get(url)
         # Attente explicite pour laisser la page se charger complètement
         WebDriverWait(driver, wait_time).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, f'a[data-testid="pagination-page-{i}"]'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'a[data-testid="pagination-page-next"]'))
         )
         
-        # Trouvez l'élément du bouton "Page 2" par l'attribut data-testid
-        change_page_button = driver.find_element(By.CSS_SELECTOR, f'a[data-testid="pagination-page-{i}"]')
+        # Trouvez l'élément du bouton "Page Suivante" par l'attribut data-testid
+        change_page_button = driver.find_element(By.CSS_SELECTOR, f'a[data-testid="pagination-page-next"]')
 
         # Scroller jusqu'à l'élément
         driver.execute_script("arguments[0].scrollIntoView();", change_page_button)
         
-        # Cliquez sur le bouton "Page 2"
+        # Cliquez sur le bouton "Page Suivante"
         change_page_button.click()
 
-        # Attendez un certain temps pour que la page i se charge (ajustez si nécessaire)
+        # Attendez un certain temps pour que la page suivante se charge (ajustez si nécessaire)
         time.sleep(wait_time)
 
-        # Vous pouvez ajouter ici une vérification pour confirmer que vous êtes sur la page i
+        # Vous pouvez ajouter ici une vérification pour confirmer que vous êtes sur la page suivante
         # par exemple, en vérifiant l'URL ou le contenu de la page
 
         return True
@@ -60,11 +65,14 @@ def scroll(driver, num_scrolls=3, scroll_pause_time=2):
     - scroll_pause_time: int, The time to pause between each scroll action (in seconds).
     """
     for _ in range(num_scrolls):
-        # Execute JavaScript to scroll down
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # Pause to let content load after each scroll
-        time.sleep(scroll_pause_time)
-
+        try:
+            # Execute JavaScript to scroll down
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # Pause to let content load after each scroll
+            logger.info(f"Successfully scrolled ({_} times)")
+            time.sleep(scroll_pause_time)
+        except Exception as err:
+            logger.debug("Error while scrolling: probably scrolling the maximum")
 
 
 def get_webpage_source(url, wait_time=5, num_scrolls=30, scroll_pause_time=2):
@@ -88,19 +96,33 @@ def get_webpage_source(url, wait_time=5, num_scrolls=30, scroll_pause_time=2):
     
     # Configuration du navigateur avec un proxy (facultatif)
     # options.add_argument('--proxy-server=http://your-proxy-server.com:port')
-
+    if "linkedin" in url:
+        source = "LinkedIn"
+    elif "indeed" in url:
+        source = "Indeed"
     with webdriver.Chrome(options=options) as driver:
         try:
             driver.get(url)
             # Attente explicite pour laisser la page se charger complètement
             time.sleep(wait_time)
-
-            # Scroll down the page
-            scroll(driver, num_scrolls, scroll_pause_time)
-
-            return driver.page_source
+            if source == "LinkedIn":
+                # Scroll down the page
+                scroll(driver, num_scrolls, scroll_pause_time)
+                html_content = driver.page_source
+            elif source == "Indeed":
+                html_content = driver.page_source
+                for _ in range(2):
+                    try:
+                        next_page_indeed(driver, url, wait_time=5)
+                        # Change the page
+                        logger.info(f"We sucessfully reached Indeed page {_}")
+                        html_content += driver.page_source
+                    except Exception as err:
+                        logger.debug(f"An error occured when changing page: {Exception}. Here is the scrapped text: {html_content}")
+                        break
+            return html_content
         except Exception as e:
-            print(f"Une erreur s'est produite : {str(e)}")
+            logger.debug(f"An error occured : {str(e)}")
             return None
 
 def extract_readable_text_from_html(html):
@@ -126,6 +148,6 @@ def extract_readable_text(url):
         html_source = get_webpage_source(url)
         return extract_readable_text_from_html(html_source)
     except Exception as e:
-        print("An error occured :", str(e))
+        logger.debug("An error occured :", str(e))
         return None
 

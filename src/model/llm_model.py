@@ -73,14 +73,14 @@ def find_job_list_url(url, html_raw_code):
 
     template =  '''
             You are analyzing the text extracted from a website with job positions : {url}.
-            Using this information, write a table with:
+            Using this information, give a chart with ALL the:
             - job name
             - company
             - location
             - offer date
             - contact (an email address or a phone number)
             Write N.A when the information is not available.
-            
+
             url text: {html_raw_code}.
                 '''                
     llm = get_llm()
@@ -89,7 +89,7 @@ def find_job_list_url(url, html_raw_code):
     return response
 
 
-def create_table_customer(url, html_raw_code):
+def create_table_with_job(url, html_raw_code):
     json_answer = find_job_list_url(url, html_raw_code)
     print("JSON Answer = ", json_answer)
     df = pd.DataFrame(json_answer)

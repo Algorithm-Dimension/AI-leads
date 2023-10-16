@@ -25,5 +25,5 @@ if user_input:
     print("HTML_raw_code = ", html_raw_code)
     print("Scrapping is done")
     print("GPT 3.5 is Working")
-    response = llm_model.find_job_list_url("fr.indeed.com", html_raw_code)
+    response = llm_model.find_job_list_url(user_input, html_raw_code)
     st.write(response)
