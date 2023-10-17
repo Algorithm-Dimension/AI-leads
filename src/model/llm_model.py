@@ -7,7 +7,8 @@ from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from Config.config_safe import API_KEY_RAPH
-import html_scrapping
+from io import StringIO
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -81,6 +82,8 @@ def find_job_list_url(url, html_raw_code):
             - contact (an email address or a phone number)
             Write N.A when the information is not available.
 
+            The only output is a csv file (no other text)
+
             url text: {html_raw_code}.
                 '''                
     llm = get_llm()
@@ -88,10 +91,9 @@ def find_job_list_url(url, html_raw_code):
     response = run_llm_chain(llm, prompt, url=url, html_raw_code=html_raw_code)
     return response
 
-
 def create_table_with_job(url, html_raw_code):
-    json_answer = find_job_list_url(url, html_raw_code)
-    print("JSON Answer = ", json_answer)
-    df = pd.DataFrame(json_answer)
+    response = find_job_list_url(url, html_raw_code)
+    # Split the string into lines
+    df  = pd.read_csv(StringIO(response))
     return df
 
