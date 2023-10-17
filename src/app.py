@@ -70,29 +70,66 @@ if __name__ == '__main__':
 
     # Filtrer les données en fonction de l'intervalle de temps sélectionné
     data_filtered = df[(df['Date'] >= date_min) & (df['Date'] <= date_max)]
-    # Afficher le nombre de postes par entreprise
+    # Remplacez le graphique à barres par un pie chart
+    # Remplacez le graphique à barres par un pie chart
     st.subheader("Nombre de postes par entreprise")
     postes_par_entreprise = data_filtered['Entreprise'].value_counts()
-    st.bar_chart(postes_par_entreprise)
-
-    # Afficher une table des données filtrées
-    st.subheader("Données filtrées")
-    st.dataframe(data_filtered)
+    st.plotly_chart(
+        px.pie(postes_par_entreprise, names=postes_par_entreprise.index, values=postes_par_entreprise.values,
+               title="Répartition des postes par entreprise"))
 
     # Autres KPI et visualisations
     # Vous pouvez ajouter d'autres KPI et visualisations en utilisant Plotly Express ou d'autres bibliothèques de visualisation.
 
-    # Exemple : Nombre de postes par lieu
+    # 2 Exemple : Nombre de postes par lieu
     st.subheader("Nombre de postes par lieu")
     postes_par_lieu = data_filtered['Lieu'].value_counts().reset_index()
     postes_par_lieu.columns = ['Lieu', 'Nombre de postes']
 
     fig = px.bar(postes_par_lieu, x='Lieu', y='Nombre de postes')
+    #st.plotly_chart(fig)
+
+
+    # 4 - Titre du tableau de bord
+    st.title("Tendances Temporelles des Offres d'Emploi")
+
+    # Créer un graphique des tendances temporelles
+    st.subheader("Évolution du Nombre d'Offres d'Emploi au Fil du Temps")
+    fig = px.line(data_filtered, x="Date", title="Nombre d'Offres d'Emploi par Date")
     st.plotly_chart(fig)
 
+    # Afficher le nombre total d'offres d'emploi pendant la période sélectionnée
+    total_offres = len(data_filtered)
+    st.write(f"Nombre total d'offres d'emploi : {total_offres}")
 
 
+    # 5
+    st.title("Analyse Comparative des Entreprises")
 
+    # Créer une barre latérale pour sélectionner l'entreprise à comparer
+    st.sidebar.header("Sélectionnez l'Entreprise")
+    entreprise_selectionnee = st.sidebar.selectbox("Entreprise", df["Entreprise"].unique())
 
+    # Filtrer les données en fonction de l'entreprise sélectionnée
+    data_filtered_company = df[df["Entreprise"] == entreprise_selectionnee]
+
+    # Afficher le nombre d'offres d'emploi de l'entreprise sélectionnée
+    nombre_offres = len(data_filtered_company)
+    st.subheader(f"Nombre d'Offres d'Emploi de {entreprise_selectionnee}")
+    st.write(f"Nombre d'Offres d'Emploi : {nombre_offres}")
+
+    # Créer une section pour l'analyse comparative des critères
+    st.subheader("Analyse Comparative")
+
+    # Vous pouvez ajouter différents critères ici et comparer les entreprises en fonction de ces critères.
+    # Par exemple, le nombre d'offres d'emploi, la durée moyenne de publication, etc.
+
+    # Exemple : Comparaison du nombre d'offres d'emploi par entreprise
+    st.subheader("Comparaison du Nombre d'Offres d'Emploi par Entreprise")
+    fig = px.bar(df, x="Entreprise", y="Poste",
+                 title="Comparaison du Nombre d'Offres d'Emploi par Entreprise")
+    st.plotly_chart(fig)
+
+    #6
 
 
