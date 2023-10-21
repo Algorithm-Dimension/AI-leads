@@ -1,153 +1,131 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import logging
+import time
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-def next_page_indeed(driver, url, wait_time=5):
+class WebScraper:
     """
-    Click the "Page i" button on a webpage using Selenium.
+    A class to handle web scraping using Selenium.
 
-    Parameters:
-    - driver: live selenium webdriver 
-    - url: str, The URL of the webpage containing the "Page i" button.
-    - i : int, number of the page where we want to go
-    - wait_time: int, The time to wait for the page to load.
-
-    Returns:
-    - bool: True if the button was successfully clicked, False otherwise.
+    Attributes:
+        url (str): The URL to be scraped.
+        driver (webdriver): The Selenium webdriver instance.
+        source (str): The name of the source website, e.g., 'LinkedIn', 'Indeed'.
     """
 
-    # Configuration du navigateur avec un proxy (facultatif)
-    # options.add_argument('--proxy-server=http://your-proxy-server.com:port')
-    try:
-        driver.get(url)
-        # Attente explicite pour laisser la page se charger complètement
-        WebDriverWait(driver, wait_time).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, f'a[data-testid="pagination-page-next"]'))
-        )
-        
-        # Trouvez l'élément du bouton "Page Suivante" par l'attribut data-testid
-        change_page_button = driver.find_element(By.CSS_SELECTOR, f'a[data-testid="pagination-page-next"]')
+    def __init__(self, url: str, options=None):
+        """
+        Initializes the WebScraper with a URL.
 
-        # Scroller jusqu'à l'élément
-        driver.execute_script("arguments[0].scrollIntoView();", change_page_button)
-        
-        # Cliquez sur le bouton "Page Suivante"
-        change_page_button.click()
+        Args:
+            url (str): The URL to be scraped.
+            options (webdriver.ChromeOptions, optional): Custom Chrome options. Defaults to None.
+        """
+        self.url = url
+        self.driver = self._init_driver(options)
+        self.source = self._identify_source()
 
-        # Attendez un certain temps pour que la page suivante se charge (ajustez si nécessaire)
-        time.sleep(wait_time)
+    def _init_driver(self, options=None) -> webdriver:
+        """Initializes the Selenium webdriver with given options."""
+        if options is None:
+            options = webdriver.ChromeOptions()
+            options.add_argument('--headless')
+            options.add_argument('--disable-gpu')
+            options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3')
+        return webdriver.Chrome(options=options)
 
-        # Vous pouvez ajouter ici une vérification pour confirmer que vous êtes sur la page suivante
-        # par exemple, en vérifiant l'URL ou le contenu de la page
+    def _identify_source(self) -> str:
+        """Identifies the source website from the given URL."""
+        if "linkedin" in self.url:
+            return "LinkedIn"
+        elif "indeed" in self.url:
+            return "Indeed"
+        return ""
 
-        return True
-    except Exception as e:
-        print(f"Une erreur s'est produite : {str(e)}")
-        return False
-
-
-def scroll(driver, num_scrolls=3, scroll_pause_time=2):
-    """
-    Scroll down a webpage using Selenium.
-
-    Parameters:
-    - driver: WebDriver instance.
-    - num_scrolls: int, The number of times to scroll down the page.
-    - scroll_pause_time: int, The time to pause between each scroll action (in seconds).
-    """
-    for _ in range(num_scrolls):
+    def next_page_indeed(self, wait_time=5) -> bool:
+        """Navigates to the next page on an Indeed website."""
         try:
-            # Execute JavaScript to scroll down
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            # Pause to let content load after each scroll
-            logger.info(f"Successfully scrolled ({_} times)")
-            time.sleep(scroll_pause_time)
-        except Exception as err:
-            logger.debug("Error while scrolling: probably scrolling the maximum")
-
-
-def get_webpage_source(url, wait_time=5, num_scrolls=30, scroll_pause_time=2):
-    """
-    Get the HTML source of a webpage with scrolling using Selenium.
-
-    Parameters:
-    - url: str, The URL of the webpage to fetch.
-    - wait_time: int, The time to wait for the page to load.
-    - num_scrolls: int, The number of times to scroll down the page.
-    - scroll_pause_time: int, The time to pause between each scroll action (in seconds).
-
-    Returns:
-    - str: The HTML source of the webpage.
-    """
-    # Configuration du navigateur avec des en-têtes et un agent utilisateur simulés
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3')
-    
-    # Configuration du navigateur avec un proxy (facultatif)
-    # options.add_argument('--proxy-server=http://your-proxy-server.com:port')
-    if "linkedin" in url:
-        source = "LinkedIn"
-    elif "indeed" in url:
-        source = "Indeed"
-    with webdriver.Chrome(options=options) as driver:
-        try:
-            driver.get(url)
-            # Attente explicite pour laisser la page se charger complètement
+            WebDriverWait(self.driver, wait_time).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-testid="pagination-page-next"]'))
+            )
+            next_page_button = self.driver.find_element(By.CSS_SELECTOR, 'a[data-testid="pagination-page-next"]')
+            self.driver.execute_script("arguments[0].scrollIntoView();", next_page_button)
+            next_page_button.click()
+            logger.info("Successfully navigated to the next page on Indeed.")
             time.sleep(wait_time)
-            if source == "LinkedIn":
-                # Scroll down the page
-                scroll(driver, num_scrolls, scroll_pause_time)
-                html_content = driver.page_source
-            elif source == "Indeed":
-                html_content = driver.page_source
-                for _ in range(2):
-                    try:
-                        next_page_indeed(driver, url, wait_time=5)
-                        # Change the page
-                        logger.info(f"We sucessfully reached Indeed page {_}")
-                        html_content += driver.page_source
-                    except Exception as err:
-                        logger.debug(f"An error occured when changing page: {Exception}. Here is the scrapped text: {html_content}")
-                        break
-            return html_content
+            return True
         except Exception as e:
-            logger.debug(f"An error occured : {str(e)}")
-            return None
+            logger.debug(f"Error navigating to the next page: {str(e)}")
+            return False
 
-def extract_readable_text_from_html(html):
+    def scroll(self, num_scrolls=3, scroll_pause_time=2):
+        """Scrolls down the webpage a specified number of times."""
+        for _ in range(num_scrolls):
+            try:
+                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                logger.info(f"Successfully scrolled ({_ + 1} times)")
+                time.sleep(scroll_pause_time)
+            except Exception as err:
+                logger.debug("Error while scrolling.")
+                return
+
+    def get_webpage_source(self, wait_time=5, num_scrolls=30, scroll_pause_time=2) -> str:
+        """Fetches the webpage's HTML source after performing necessary interactions."""
+        html_content = ""
+        try:
+            self.driver.get(self.url)
+            time.sleep(wait_time)
+
+            if self.source == "LinkedIn":
+                self.scroll(num_scrolls, scroll_pause_time)
+                html_content = self.driver.page_source
+            elif self.source == "Indeed":
+                html_content = self.driver.page_source
+                for _ in range(2):
+                    if not self.next_page_indeed(wait_time):
+                        break
+                    html_content += self.driver.page_source
+
+        except Exception as e:
+            logger.debug(f"Error getting the webpage source: {str(e)}")
+
+        self.driver.quit()
+        return html_content
+
+def extract_readable_text_from_html(html: str) -> str:
     """
-    Extract readable text from an HTML string using BeautifulSoup.
+    Extracts readable text from the provided HTML using BeautifulSoup.
 
-    Parameters:
-    - html: str, The HTML string.
+    Args:
+        html (str): The HTML string.
 
     Returns:
-    - str: The extracted readable text.
+        str: Extracted readable text.
     """
     soup = BeautifulSoup(html, 'html.parser')
     text = soup.get_text()
     return ' '.join(text.split())
 
+def extract_readable_text(url: str) -> str:
+    """
+    Scrapes and extracts readable text from a given URL.
 
-def extract_readable_text(url):
+    Args:
+        url (str): The URL to be scraped.
+
+    Returns:
+        str: Extracted readable text.
     """
-    Scrapps job search results from a career website.
-    """
-    try:
-        html_source = get_webpage_source(url)
+    scraper = WebScraper(url)
+    html_source = scraper.get_webpage_source()
+    if html_source:
         return extract_readable_text_from_html(html_source)
-    except Exception as e:
-        logger.debug("An error occured :", str(e))
-        return None
-
+    logger.debug(f"Failed to fetch content from the URL: {url}")
+    return ""

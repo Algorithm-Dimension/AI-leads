@@ -16,3 +16,4 @@ TEMPLATE =  '''
 
 # Nombre de jour à retenir pour le compte des offres
 TIME_WINDOW = 10
+OUTPUT_PARSER = None
