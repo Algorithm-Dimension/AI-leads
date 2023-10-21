@@ -5,10 +5,10 @@ import pandas as pd
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-from Config.config_safe import API_KEY_RAPH
 from io import StringIO
-
+from Config.config_safe import API_KEY_RAPH
+from param import TEMPLATE
+import utils
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +31,7 @@ def get_llm(model_name="gpt-3.5-turbo-16k", temperature=0.0):
     """
     return ChatOpenAI(temperature=temperature, model_name=model_name)
 
-def prepare_prompt(template, input_vars, partial_vars):
+def prepare_prompt(template, input_vars = [], partial_vars = {}):
     """
     Prepares a prompt template.
 
@@ -60,11 +60,10 @@ def run_llm_chain(llm, prompt, **input_vars):
     llm_chain = LLMChain(prompt=prompt, llm=llm)
     return llm_chain.run(**input_vars)
 
-def find_job_list_url(url, html_raw_code):
+def find_job_list_url(url, html_raw_code, template, output_parser=None):
     """
     Finds a response regarding the assurance of food provider for a university.
 
-    Args:
     - university: str
     - food_provider: str
     
@@ -72,28 +71,28 @@ def find_job_list_url(url, html_raw_code):
     str: parsed response value
     """
 
-    template =  '''
-            You are analyzing the text extracted from a website with job positions : {url}.
-            Using this information, give a chart with ALL the:
-            - job name
-            - company
-            - location
-            - offer date
-            - contact (an email address or a phone number)
-            Write N.A when the information is not available.
-
-            The only output is a csv file (no other text)
-
-            url text: {html_raw_code}.
-                '''                
     llm = get_llm()
-    prompt = PromptTemplate(template=template, input_variables=["url", "html_raw_code"])
+    if output_parser != None:
+        format_instructions = output_parser.get_format_instructions()
+    variable_list = utils.extract_variables(template)
+    if "format_instructions" in variable_list:
+        variable_list.remove("format_instructions")
+        prompt = prepare_prompt(template=template, input_vars=variable_list, 
+                                        partial_vars={"format_instructions": format_instructions})
+    else:
+        prompt = prepare_prompt(template=template, input_vars=variable_list)
     response = run_llm_chain(llm, prompt, url=url, html_raw_code=html_raw_code)
     return response
 
 def create_table_with_job(url, html_raw_code):
-    response = find_job_list_url(url, html_raw_code)
+    template = TEMPLATE
+    output_parser = None
+    response = find_job_list_url(url, html_raw_code, template, output_parser)
     # Split the string into lines
-    df  = pd.read_csv(StringIO(response))
+    try:
+        df  = pd.read_csv(StringIO(response), sep = ";")
+    except Exception as error:
+        print(error)
+        print(response)
     return df
 

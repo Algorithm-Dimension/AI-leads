@@ -1,6 +1,8 @@
 import streamlit as st
 import llm_model
 import html_scrapping
+from dataset_creation import convert_time_column,convert_to_lead_dataframe
+from param import TIME_WINDOW
 
 st.set_page_config(page_title="Lead Generation")
 
@@ -23,4 +25,6 @@ if user_input:
     print("Scrapping is done")
     print("GPT 3.5 is Working")
     df = llm_model.create_table_with_job(user_input, html_raw_code)
-    st.table(df)
+    df_lead = convert_to_lead_dataframe(df, TIME_WINDOW)
+    df_lead.to_csv("output_example.csv")
+    st.table(df_lead)
