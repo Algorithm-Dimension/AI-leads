@@ -3,7 +3,8 @@ import streamlit as st
 import llm_model
 import html_scrapping
 import lead_dataset_creation
-from Config.param import TIME_WINDOW
+import job_dataset_creation
+from Config.param import TIME_WINDOW, SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION
 
 # Configuration de logging
 logging.basicConfig(level=logging.INFO)
@@ -21,11 +22,11 @@ def generate_leads(user_input: str) -> None:
         user_input (str): The URL provided by the user.
     """
     logger.info("Starting scrapping text data...")
-    html_raw_code = html_scrapping.extract_readable_text(user_input)
     logger.info("Scrapping is done")
     logger.info("GPT 3.5 is processing...")
 
-    df = llm_model.create_table_with_job(user_input, html_raw_code)
+    dfCreator = job_dataset_creation.JobDataFrameCreator(SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION)
+    df = dfCreator.find_all_job()
     dfConverter = lead_dataset_creation.LeadDataFrameConverter(df)
     df_lead = dfConverter.convert_to_lead_dataframe(TIME_WINDOW)
 

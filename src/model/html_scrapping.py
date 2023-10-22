@@ -10,30 +10,14 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class WebScraper:
-    """
-    A class to handle web scraping using Selenium.
-
-    Attributes:
-        url (str): The URL to be scraped.
-        driver (webdriver): The Selenium webdriver instance.
-        source (str): The name of the source website, e.g., 'LinkedIn', 'Indeed'.
-    """
-
     def __init__(self, url: str, options=None):
-        """
-        Initializes the WebScraper with a URL.
-
-        Args:
-            url (str): The URL to be scraped.
-            options (webdriver.ChromeOptions, optional): Custom Chrome options. Defaults to None.
-        """
         self.url = url
         self.driver = self._init_driver(options)
         self.source = self._identify_source()
 
     def _init_driver(self, options=None) -> webdriver:
-        """Initializes the Selenium webdriver with given options."""
         if options is None:
             options = webdriver.ChromeOptions()
             options.add_argument('--headless')
@@ -42,7 +26,6 @@ class WebScraper:
         return webdriver.Chrome(options=options)
 
     def _identify_source(self) -> str:
-        """Identifies the source website from the given URL."""
         if "linkedin" in self.url:
             return "LinkedIn"
         elif "indeed" in self.url:
@@ -50,11 +33,12 @@ class WebScraper:
         return ""
 
     def next_page_indeed(self, wait_time=5) -> bool:
-        """Navigates to the next page on an Indeed website."""
         try:
+            # Waiting for the next button to load
             WebDriverWait(self.driver, wait_time).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-testid="pagination-page-next"]'))
             )
+            # Finding and clicking the button
             next_page_button = self.driver.find_element(By.CSS_SELECTOR, 'a[data-testid="pagination-page-next"]')
             self.driver.execute_script("arguments[0].scrollIntoView();", next_page_button)
             next_page_button.click()
@@ -66,7 +50,6 @@ class WebScraper:
             return False
 
     def scroll(self, num_scrolls=3, scroll_pause_time=2):
-        """Scrolls down the webpage a specified number of times."""
         for _ in range(num_scrolls):
             try:
                 self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -77,7 +60,6 @@ class WebScraper:
                 return
 
     def get_webpage_source(self, wait_time=5, num_scrolls=30, scroll_pause_time=2) -> str:
-        """Fetches the webpage's HTML source after performing necessary interactions."""
         html_content = ""
         try:
             self.driver.get(self.url)
@@ -99,30 +81,14 @@ class WebScraper:
         self.driver.quit()
         return html_content
 
+
 def extract_readable_text_from_html(html: str) -> str:
-    """
-    Extracts readable text from the provided HTML using BeautifulSoup.
-
-    Args:
-        html (str): The HTML string.
-
-    Returns:
-        str: Extracted readable text.
-    """
     soup = BeautifulSoup(html, 'html.parser')
     text = soup.get_text()
     return ' '.join(text.split())
 
+
 def extract_readable_text(url: str) -> str:
-    """
-    Scrapes and extracts readable text from a given URL.
-
-    Args:
-        url (str): The URL to be scraped.
-
-    Returns:
-        str: Extracted readable text.
-    """
     scraper = WebScraper(url)
     html_source = scraper.get_webpage_source()
     if html_source:

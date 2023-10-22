@@ -4,7 +4,7 @@ import pandas as pd
 from io import StringIO
 from llm_model import LLMManager
 import utils
-from Config.param import TEMPLATE, OUTPUT_PARSER
+from Config.param import TEMPLATE, OUTPUT_PARSER, DF_PARAM_SEARCH
 import html_scrapping
 
 # Setup logging
@@ -91,7 +91,6 @@ class JobDataFrameCreator(LLMManager):
         # Parcourez le dictionnaire et concaténez les DataFrames tout en ajoutant la colonne "source"
         for key, df in dataframe_dict.items():
             # Ajoutez une colonne "source" avec la valeur correspondante à la clé
-            df['sourceJobBoard'] = key
             concatenated_dfs.append(df)
 
         # Concaténez tous les DataFrames en un seul
@@ -105,10 +104,14 @@ class JobDataFrameCreator(LLMManager):
         source_list = self.plateforms_list
         job_list = self.job_list
         dict_df_jobs = {}
+        location = self.location
         for source in source_list:
-            dict_df_jobs[source] = self.create_table_with_job(source)
-        final_job_df = self._unify_dataframe(dict_df_jobs)
+            for job in job_list:
+                url = f"https://fr.indeed.com/q-{job}-l-{location}-emplois.html"
+                logger.info(f"We scrap this {url}")
+                df_job = self.create_table_with_job(url)
+                df_job["position"] = job
+                df_job["source"] = source
+                dict_df_jobs[source + job] = df_job
+            final_job_df = self._unify_dataframe(dict_df_jobs)
         return(final_job_df)
-
-
-

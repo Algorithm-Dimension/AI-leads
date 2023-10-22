@@ -7,8 +7,9 @@ from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from io import StringIO
 from Config.config_safe import API_KEY_RAPH
-from param import TEMPLATE
+from Config.param import TEMPLATE, OUTPUT_PARSER
 import utils
+import html_scrapping
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -49,56 +50,3 @@ class LLMManager:
         """
         llm_chain = LLMChain(prompt=prompt, llm=self.llm)
         return llm_chain.run(**input_vars)
-
-def find_job_list_url(url: str, html_raw_code: str, template: str, output_parser=None) -> str:
-    """
-    Find all the job offer of a web page
-
-    Args:
-    - url: str
-    - html_raw_code: str
-    - template: str
-    - output_parser: optional
-    
-    Returns:
-    str: parsed response value
-    """
-
-    manager = LLMManager()
-    variable_list = utils.extract_variables(template)
-    
-    if output_parser != None:
-        format_instructions = output_parser.get_format_instructions()
-        variable_list.remove("format_instructions")
-        prompt = manager.prepare_prompt(template=template, input_vars=variable_list, 
-                                        partial_vars={"format_instructions": format_instructions})
-        response = manager.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-        return(output_parser.parse(response))
-    else:
-        prompt = manager.prepare_prompt(template=template, input_vars=variable_list)
-        response = manager.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-        return response
-
-def create_table_with_job(url: str, html_raw_code: str) -> pd.DataFrame:
-    """
-    Creates a table with job listings.
-
-    Args:
-    - url: str
-    - html_raw_code: str
-    
-    Returns:
-    pd.DataFrame: job listings table
-    """
-    
-    template = TEMPLATE
-    output_parser = None
-    response = find_job_list_url(url, html_raw_code, template, output_parser)
-
-    try:
-        df  = pd.read_csv(StringIO(response), sep=";")
-    except Exception as error:
-        print(error)
-        print(response)
-        
-    return df
