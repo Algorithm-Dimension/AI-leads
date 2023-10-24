@@ -28,6 +28,6 @@ source_param = {"LinkedIn": [False, "https://www.linkedin.com/jobs/"],
 DF_PARAM_SEARCH = pd.DataFrame(source_param).T
 DF_PARAM_SEARCH.columns = ["isDirectLink", "url"]
 
-SOURCE_LIST_PIPELINE = ["Indeed"]
-JOB_LIST_PIPELINE = ["assistant-comptable", "office-manager"]
+SOURCE_LIST_PIPELINE = ["LinkedIn", "Indeed"]
+JOB_LIST_PIPELINE = ["assistant-comptable"]
 LOCATION = "Paris"

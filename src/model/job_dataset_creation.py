@@ -4,8 +4,8 @@ import pandas as pd
 from io import StringIO
 from llm_model import LLMManager
 import utils
-from Config.param import TEMPLATE, OUTPUT_PARSER, DF_PARAM_SEARCH
-import html_scrapping
+from Config.param import TEMPLATE, OUTPUT_PARSER
+from html_scrapping import WebScraper
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +30,7 @@ class JobDataFrameCreator(LLMManager):
         self.plateforms_list = plateforms_list
         self.job_list = job_list
         self.location = location
+        self.scraper = WebScraper()
 
     def _find_job_list_url(self, url: str, html_raw_code: str, template: str, output_parser=None) -> str:
         """
@@ -59,7 +60,7 @@ class JobDataFrameCreator(LLMManager):
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
             return response
 
-    def create_table_with_job(self, url: str) -> pd.DataFrame:
+    def create_table_with_job(self, url: str, platform: str) -> pd.DataFrame:
         """
         Creates a table with job listings.
 
@@ -72,7 +73,7 @@ class JobDataFrameCreator(LLMManager):
         
         template = TEMPLATE
         output_parser = OUTPUT_PARSER
-        html_raw_code = html_scrapping.extract_readable_text(url)
+        html_raw_code = WebScraper(platform).extract_readable_text(url)
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
 
         try:
@@ -99,19 +100,20 @@ class JobDataFrameCreator(LLMManager):
         return result_df
 
     def find_all_job(self):
-        # FONCTION A FINIR. NE PLUS UTILISER CREATE TABLE WITH JOB AVEC URL (ICI c'est ecris source mais c'est un url)
-        # UTILISER UNE LISTE DE SOURCE ET DE POSITION ET POUVOIR RETROUVER LES JOBS
-        source_list = self.plateforms_list
+        platform_list = self.plateforms_list
         job_list = self.job_list
         dict_df_jobs = {}
         location = self.location
-        for source in source_list:
+        for platform in platform_list:
             for job in job_list:
-                url = f"https://fr.indeed.com/q-{job}-l-{location}-emplois.html"
-                logger.info(f"We scrap this {url}")
-                df_job = self.create_table_with_job(url)
+                logger.info(f"{platform}, {job}")
+                scraper = WebScraper(platform)
+                url = scraper.find_url(job, location)
+                logger.info(f"We scrap this url: {url}")
+                df_job = self.create_table_with_job(url, platform)
                 df_job["position"] = job
-                df_job["source"] = source
-                dict_df_jobs[source + job] = df_job
+                df_job["source"] = platform
+                dict_df_jobs[platform + job] = df_job
+            print("DF = ", df_job)
             final_job_df = self._unify_dataframe(dict_df_jobs)
         return(final_job_df)

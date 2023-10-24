@@ -5,19 +5,53 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import logging
 import time
-
-# Setup logging
+from urllib.parse import quote
+from typing import List
+from Config.param import INDEED_NUMBER_PAGE, LINKEDIN_NUMBER_SCROLL
+# Setting up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class WebScraper:
-    def __init__(self, url: str, options=None):
-        self.url = url
-        self.driver = self._init_driver(options)
-        self.source = self._identify_source()
+    """
+    A class to scrape web content from LinkedIn and Indeed using Selenium and BeautifulSoup.
 
-    def _init_driver(self, options=None) -> webdriver:
+    Attributes:
+        url (str): URL of the webpage to be scraped.
+        driver (webdriver): Selenium web driver instance.
+        source (str): Source website identifier, either "LinkedIn" or "Indeed".
+
+    Methods:
+        next_page_indeed(): Navigate to the next page on Indeed.
+        scroll(): Scroll the web page multiple times.
+        get_webpage_source(): Get the HTML content of the web page.
+    """
+
+    def __init__(self, platform = "Google", options=None):
+        """
+        Initialize a new WebScraper instance.
+
+        Args:
+            plateforme (str): platform to be scraped.
+            options: Selenium webdriver options, default to None.
+        """
+        self.driver = self._init_driver(options)
+        self.platform = platform
+        self.indeed_number_page = INDEED_NUMBER_PAGE
+        self.linkedin_number_scroll = LINKEDIN_NUMBER_SCROLL
+
+
+    def _init_driver(self, options=None) -> webdriver.Chrome:
+        """
+        Initialize a Selenium web driver with specified options or defaults.
+
+        Args:
+            options: Selenium webdriver options, default to None.
+
+        Returns:
+            webdriver.Chrome: Initialized Chrome web driver.
+        """
         if options is None:
             options = webdriver.ChromeOptions()
             options.add_argument('--headless')
@@ -25,20 +59,34 @@ class WebScraper:
             options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3')
         return webdriver.Chrome(options=options)
 
-    def _identify_source(self) -> str:
-        if "linkedin" in self.url:
+    @staticmethod
+    def _identify_source(url) -> str:
+        """
+        Identify the source website based on the provided URL.
+
+        Returns:
+            str: "LinkedIn", "Indeed", or an empty string if unrecognized.
+        """
+        if "linkedin" in url:
             return "LinkedIn"
-        elif "indeed" in self.url:
+        elif "indeed" in url:
             return "Indeed"
         return ""
 
     def next_page_indeed(self, wait_time=5) -> bool:
+        """
+        Navigate to the next page on Indeed if available.
+
+        Args:
+            wait_time (int): Time in seconds to wait for elements to load.
+
+        Returns:
+            bool: True if successfully navigated, otherwise False.
+        """
         try:
-            # Waiting for the next button to load
             WebDriverWait(self.driver, wait_time).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-testid="pagination-page-next"]'))
             )
-            # Finding and clicking the button
             next_page_button = self.driver.find_element(By.CSS_SELECTOR, 'a[data-testid="pagination-page-next"]')
             self.driver.execute_script("arguments[0].scrollIntoView();", next_page_button)
             next_page_button.click()
@@ -49,7 +97,14 @@ class WebScraper:
             logger.debug(f"Error navigating to the next page: {str(e)}")
             return False
 
-    def scroll(self, num_scrolls=3, scroll_pause_time=2):
+    def scroll(self, num_scrolls=LINKEDIN_NUMBER_SCROLL, scroll_pause_time=2):
+        """
+        Scroll the web page multiple times.
+
+        Args:
+            num_scrolls (int): Number of times to scroll the page.
+            scroll_pause_time (int): Time in seconds to pause between scrolls.
+        """
         for _ in range(num_scrolls):
             try:
                 self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -59,18 +114,29 @@ class WebScraper:
                 logger.debug("Error while scrolling.")
                 return
 
-    def get_webpage_source(self, wait_time=5, num_scrolls=30, scroll_pause_time=2) -> str:
+    def get_webpage_source(self, url, wait_time=5, num_scrolls=LINKEDIN_NUMBER_SCROLL, scroll_pause_time=2) -> str:
+        """
+        Get the HTML content of the web page.
+
+        Args:
+            wait_time (int): Time in seconds to wait for the webpage to load.
+            num_scrolls (int): Number of times to scroll the page.
+            scroll_pause_time (int): Time in seconds to pause between scrolls.
+
+        Returns:
+            str: HTML content of the web page.
+        """
         html_content = ""
         try:
-            self.driver.get(self.url)
+            self.driver.get(url)
             time.sleep(wait_time)
 
-            if self.source == "LinkedIn":
+            if self.platform == "LinkedIn":
                 self.scroll(num_scrolls, scroll_pause_time)
                 html_content = self.driver.page_source
-            elif self.source == "Indeed":
+            elif self.platform == "Indeed":
                 html_content = self.driver.page_source
-                for _ in range(2):
+                for _ in range(INDEED_NUMBER_PAGE):
                     if not self.next_page_indeed(wait_time):
                         break
                     html_content += self.driver.page_source
@@ -81,17 +147,116 @@ class WebScraper:
         self.driver.quit()
         return html_content
 
+    @staticmethod
+    def extract_readable_text_from_html(html: str) -> str:
+        """
+        Extract readable text from an HTML content using BeautifulSoup.
 
-def extract_readable_text_from_html(html: str) -> str:
-    soup = BeautifulSoup(html, 'html.parser')
-    text = soup.get_text()
-    return ' '.join(text.split())
+        Args:
+            html (str): HTML content.
+
+        Returns:
+            str: Extracted readable text.
+        """
+        soup = BeautifulSoup(html, 'html.parser')
+        text = soup.get_text()
+        return ' '.join(text.split())
 
 
-def extract_readable_text(url: str) -> str:
-    scraper = WebScraper(url)
-    html_source = scraper.get_webpage_source()
-    if html_source:
-        return extract_readable_text_from_html(html_source)
-    logger.debug(f"Failed to fetch content from the URL: {url}")
-    return ""
+    def extract_readable_text(self, url: str) -> str:
+        """
+        Extract readable text from a web page URL.
+
+        Args:
+            url (str): Web page URL.
+
+        Returns:
+            str: Extracted readable text, or an empty string if failed.
+        """
+        html_source = self.get_webpage_source(url)
+        if html_source:
+            return self.extract_readable_text_from_html(html_source)
+        logger.debug(f"Failed to fetch content from the URL: {url}")
+        return ""
+
+
+    def _extract_google_links(self, position: str, location: str, num_results: int = 5) -> List[str]:
+        """
+        Extract the first set of links from a Google search.
+
+        Args:
+        - position: job position
+        - location: location of the job
+        - num_results: Number of results to fetch.
+
+        Returns:
+        - list: List of URLs from the Google search.
+        """
+        platform = self.platform
+        query = f"{position} {location} {platform}"
+        links = []
+        n_pages = 2
+        print("QUERY = ", query)
+        for page in range(1, n_pages):
+            query_encoded = quote(query)
+            url = f"http://www.google.com/search?q={query_encoded}&start={(page - 1) * 10}"
+            print("URL GOOOG", url)
+            try:
+                self.driver.get(url)
+                time.sleep(5)
+                self.scroll(1, 2)
+                html_content = self.driver.page_source
+                soup = BeautifulSoup(html_content, 'html.parser')
+                search_results = soup.find_all('div', class_="yuRUbf")
+                
+                for result in search_results:
+                    link = result.a.get('href')
+                    links.append(link)
+
+            except Exception as err:
+                print(err)
+        print("LINK : ", links)
+        return links[:num_results]
+
+    def _linkedin_url(self, position: str, location: str) -> List[str]:
+        '''
+        Function which returns the linkedin web page with job offers
+        Args:
+        - position: job position
+        - location: location of the job
+
+        Returns:
+        - str: URL with job offer
+        '''
+        url_list = self._extract_google_links(position, location, num_results = 1)
+        for url in url_list:
+            if "linkedin" in url and "jobs" in url:
+                return(url)
+
+    def _indeed_url(self, position: str, location: str) -> List[str]:
+        '''
+        Function which returns the indeed web page with job offers
+        Args:
+        - position: job position
+        - location: location of the job
+
+        Returns:
+        - str: URL with job offer
+        '''
+        return(f"https://fr.indeed.com/q-{position}-l-{location}-emplois.html")
+
+    def find_url(self, position: str, location: str)->str:
+        '''
+        Function which return according to the plateform, the position and the location the url to scrap
+        Args:
+        - position: job position
+        - location: location of the job
+        
+        Output: url: str'''
+
+        if self.platform == "LinkedIn":
+            url = self._linkedin_url(position, location)
+            return(url)
+        if self.platform == "Indeed":
+            url = self._indeed_url(position, location)
+            return(url)
