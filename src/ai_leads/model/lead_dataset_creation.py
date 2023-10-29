@@ -80,5 +80,5 @@ class LeadDataFrameConverter:
             delta = today - parsed_date
             return int(delta.days)
         else:
-            logger.debug(f"Failed to parse date from string: {temp_string}")
+            logger.info(f"Failed to parse date from string: {temp_string}")
             return np.nan

@@ -19,7 +19,7 @@ class JobDataFrameCreator(LLMManager):
         df (pd.DataFrame): The input dataframe.
     """
 
-    def __init__(self, plateforms_list, job_list, location):
+    def __init__(self):
         """
         Initializes the LeadDataFrameConverter with a dataframe.
 
@@ -27,9 +27,6 @@ class JobDataFrameCreator(LLMManager):
             df (pd.DataFrame): The input dataframe.
         """
         super().__init__()
-        self.plateforms_list = plateforms_list
-        self.job_list = job_list
-        self.location = location
         self.scraper = WebpageScraper()
 
     def _find_job_list_url(self, url: str, html_raw_code: str, template: str, output_parser=None) -> str:
@@ -101,22 +98,3 @@ class JobDataFrameCreator(LLMManager):
         result_df = pd.concat(concatenated_dfs, ignore_index=True)
 
         return result_df
-
-    def find_all_jobs(self) -> pd.DataFrame:
-        platform_list = self.plateforms_list
-        job_list = self.job_list
-        dict_df_jobs = {}
-        location = self.location
-        for platform in platform_list:
-            for job in job_list:
-                logger.info(f"{platform}, {job}")
-                url_list = WebpageScraper(platform=platform).find_url_list(job, location)
-                for url in url_list:
-                    logger.info("We scrap this url: %s", url)
-                    df_job = self.create_table_with_job(url, platform)
-                    df_job["position"] = job
-                    df_job["source"] = platform
-                    df_job["url"] = url
-                    dict_df_jobs[platform + job + url] = df_job
-        final_job_df = self._unify_dataframe(dict_df_jobs)
-        return final_job_df
