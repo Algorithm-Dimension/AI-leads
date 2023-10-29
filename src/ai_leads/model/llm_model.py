@@ -1,15 +1,9 @@
 import os
 import logging
-import numpy as np
-import pandas as pd
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from io import StringIO
-from Config.config_safe import API_KEY_RAPH
-from Config.param import TEMPLATE, OUTPUT_PARSER
-import utils
-import html_scrapping
+from ai_leads.Config.config_safe import API_KEY_RAPH
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Move the API key to environment variables for security reasons
 os.environ["OPENAI_API_KEY"] = API_KEY_RAPH
+
 
 class LLMManager:
     def __init__(self, model_name: str = "gpt-3.5-turbo-16k", temperature: float = 0.0):
@@ -31,7 +26,7 @@ class LLMManager:
         - template: str
         - input_vars: list[str]
         - partial_vars: dict
-        
+
         Returns:
         PromptTemplate object
         """
@@ -44,7 +39,7 @@ class LLMManager:
         Args:
         - prompt: PromptTemplate object
         - input_vars: keyword arguments
-        
+
         Returns:
         dict: response from LLMChain.run()
         """

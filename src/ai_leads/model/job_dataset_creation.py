@@ -1,15 +1,15 @@
 import logging
-import numpy as np
 import pandas as pd
+from typing import Dict
 from io import StringIO
-from llm_model import LLMManager
-import utils
-from Config.param import TEMPLATE, OUTPUT_PARSER
-from html_scrapping import WebScraper
+from ai_leads.model.llm_model import LLMManager
+import ai_leads.utils as utils
+from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER
+from ai_leads.model.navigator import WebpageScraper
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class JobDataFrameCreator(LLMManager):
     """
@@ -30,7 +30,7 @@ class JobDataFrameCreator(LLMManager):
         self.plateforms_list = plateforms_list
         self.job_list = job_list
         self.location = location
-        self.scraper = WebScraper()
+        self.scraper = WebpageScraper()
 
     def _find_job_list_url(self, url: str, html_raw_code: str, template: str, output_parser=None) -> str:
         """
@@ -41,20 +41,23 @@ class JobDataFrameCreator(LLMManager):
         - html_raw_code: str
         - template: str
         - output_parser: optional
-        
+
         Returns:
         str: parsed response value
         """
 
         variable_list = utils.extract_variables(template)
-        
+
         if output_parser != None:
             format_instructions = output_parser.get_format_instructions()
             variable_list.remove("format_instructions")
-            prompt = self.prepare_prompt(template=template, input_vars=variable_list, 
-                                            partial_vars={"format_instructions": format_instructions})
+            prompt = self.prepare_prompt(
+                template=template,
+                input_vars=variable_list,
+                partial_vars={"format_instructions": format_instructions},
+            )
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-            return(output_parser.parse(response))
+            return output_parser.parse(response)
         else:
             prompt = self.prepare_prompt(template=template, input_vars=variable_list)
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
@@ -66,26 +69,26 @@ class JobDataFrameCreator(LLMManager):
 
         Args:
         - url: str
-        
+
         Returns:
         pd.DataFrame: job listings table
         """
-        
+
         template = TEMPLATE
         output_parser = OUTPUT_PARSER
-        html_raw_code = WebScraper(platform).extract_readable_text(url)
+        html_raw_code = WebpageScraper(platform, headless=False).fetch_readable_text(url)
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
-
         try:
-            df  = pd.read_csv(StringIO(response), sep=";")
-        except Exception as error:
-            logger.debug(f"An error occured: {error}")
-            logger.info(f"LLM Response is: {response}")
+            df = pd.read_csv(StringIO(response), sep=";")
 
+        except Exception as error:
+            logger.info("An error occured: %s", error)
+            logger.info("LLM Response is: %s", response)
+        print("DF = ", df)
         return df
 
     @staticmethod
-    def _unify_dataframe(dataframe_dict):
+    def _unify_dataframe(dataframe_dict: Dict[str, pd.DataFrame]):
         # Créez une liste vide pour stocker les DataFrames concaténés
         concatenated_dfs = []
 
@@ -96,10 +99,10 @@ class JobDataFrameCreator(LLMManager):
 
         # Concaténez tous les DataFrames en un seul
         result_df = pd.concat(concatenated_dfs, ignore_index=True)
-        
+
         return result_df
 
-    def find_all_job(self):
+    def find_all_jobs(self) -> pd.DataFrame:
         platform_list = self.plateforms_list
         job_list = self.job_list
         dict_df_jobs = {}
@@ -107,13 +110,13 @@ class JobDataFrameCreator(LLMManager):
         for platform in platform_list:
             for job in job_list:
                 logger.info(f"{platform}, {job}")
-                scraper = WebScraper(platform)
-                url = scraper.find_url(job, location)
-                logger.info(f"We scrap this url: {url}")
-                df_job = self.create_table_with_job(url, platform)
-                df_job["position"] = job
-                df_job["source"] = platform
-                dict_df_jobs[platform + job] = df_job
-            print("DF = ", df_job)
-            final_job_df = self._unify_dataframe(dict_df_jobs)
-        return(final_job_df)
+                url_list = WebpageScraper(platform=platform).find_url_list(job, location)
+                for url in url_list:
+                    logger.info("We scrap this url: %s", url)
+                    df_job = self.create_table_with_job(url, platform)
+                    df_job["position"] = job
+                    df_job["source"] = platform
+                    df_job["url"] = url
+                    dict_df_jobs[platform + job + url] = df_job
+        final_job_df = self._unify_dataframe(dict_df_jobs)
+        return final_job_df

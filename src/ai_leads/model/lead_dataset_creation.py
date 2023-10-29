@@ -5,8 +5,8 @@ import dateparser
 from datetime import datetime
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class LeadDataFrameConverter:
     """
@@ -45,17 +45,22 @@ class LeadDataFrameConverter:
         Returns:
             pd.DataFrame: The lead dataframe.
         """
-        self.convert_time_column("offer date")
-        
+        try:
+            self.convert_time_column("offer date")
+        except Exception as error:
+            logger.info("An error occured while converting time: %s", error)
+
         self.df = self.df.loc[self.df["offer date clean"] <= time_window]
-        
+
         df_lead = pd.DataFrame(self.df["company"].value_counts()).reset_index()
         df_lead.columns = ["Entreprise", f"Nombre d'offres postés les {time_window} derniers jours"]
         df_lead["Contacté"] = "Non"
         df_lead["Téléphone"] = np.nan
         df_lead["Email"] = np.nan
-        df_lead.sort_values(by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True)
-        
+        df_lead.sort_values(
+            by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True
+        )
+
         return df_lead
 
     @staticmethod
@@ -69,7 +74,7 @@ class LeadDataFrameConverter:
         Returns:
             int: Number of days since the date represented by temp_string.
         """
-        parsed_date = dateparser.parse(temp_string, languages=['fr', 'en'])
+        parsed_date = dateparser.parse(temp_string, languages=["fr", "en"])
         if parsed_date:
             today = datetime.now()
             delta = today - parsed_date

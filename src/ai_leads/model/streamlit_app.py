@@ -1,10 +1,7 @@
 import logging
 import streamlit as st
-import llm_model
-import html_scrapping
-import lead_dataset_creation
-import job_dataset_creation
-from Config.param import TIME_WINDOW, SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION
+from ai_leads.model import lead_dataset_creation, job_dataset_creation
+from ai_leads.Config.param import TIME_WINDOW, SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION
 
 # Configuration de logging
 logging.basicConfig(level=logging.INFO)
@@ -12,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration de la page Streamlit
 st.set_page_config(page_title="Lead Generation")
+
 
 # Fonction pour générer des leads basé sur l'URL entrée par l'utilisateur
 def generate_leads(user_input: str) -> None:
@@ -26,12 +24,13 @@ def generate_leads(user_input: str) -> None:
     logger.info("GPT 3.5 is processing...")
 
     dfCreator = job_dataset_creation.JobDataFrameCreator(SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION)
-    df = dfCreator.find_all_job()
+    df = dfCreator.find_all_jobs()
     dfConverter = lead_dataset_creation.LeadDataFrameConverter(df)
     df_lead = dfConverter.convert_to_lead_dataframe(TIME_WINDOW)
 
     df_lead.to_csv("output_example.csv")
     st.table(df_lead)
+
 
 def main() -> None:
     """
@@ -53,5 +52,6 @@ def main() -> None:
         st.write(f"Searching for customers of {user_input}...")
         generate_leads(user_input)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

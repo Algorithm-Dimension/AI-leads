@@ -9,12 +9,13 @@ TEMPLATE = """
             - offer date (ex. 10 days ago, 2 months ago, today, aujourd'hui, il y a 2 jours, …)
             - contact (an email address or a phone number)
             Write N.A. when the information is not available.
+            Exclude the companies that are recruitment companies
 
             The only output is a csv file (sep = ";")
             (no other text)
 
             url text: {html_raw_code}.
-                """
+            """
 
 # Nombre de jour à retenir pour le compte des offres
 TIME_WINDOW = 10
@@ -30,6 +31,8 @@ source_param = {
 DF_PARAM_SEARCH = pd.DataFrame(source_param).T
 DF_PARAM_SEARCH.columns = ["isDirectLink", "url"]
 
-SOURCE_LIST_PIPELINE = ["Indeed"]
-JOB_LIST_PIPELINE = ["assistant-comptable"]
+SOURCE_LIST_PIPELINE = ["LinkedIn", "Indeed"]
+JOB_LIST_PIPELINE = ["assistant-comptable", "collaborateur-comptable"]
 LOCATION = "Paris"
+
+WAIT_TIME = 5
