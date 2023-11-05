@@ -20,6 +20,7 @@ selenium = "^4.14.0"
 langchain = "^0.0.325"
 dateparser = "^1.1.8"
 openai = "^0.28.1"
+googlesearch-python = "^1.2.3"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "3.4.7"

@@ -36,7 +36,7 @@ class WebpageScraper:
         """
         if platform in ["LinkedIn"]:
             return True
-        elif platform in ["Indeed", "Hello Work", "Cadre Emploi"]:
+        elif platform in ["Indeed", "Hello Work", "Cadre Emploi", "Welcome to the Jungle", "Talent.com"]:
             return False
         return True
 
@@ -179,6 +179,39 @@ class WebpageScraper:
         ]
         return URL_list
 
+    @staticmethod
+    def _wtj_url(position: str, location: str, number_pages=5) -> List[str]:
+        """
+        Function which returns the welcome to the jungle web page with job offers
+        Args:
+        - position: job position
+        - location: location of the job
+
+        Returns:
+        - str: URL with job offer
+        """
+        if position.lower() == "paris":
+            zip_code = "75000"
+        URL_list = [
+            f"https://www.welcometothejungle.com/fr/pages/emploi-{position}-{location}-{zip_code}?page={str(i+1)}"
+            for i in range(number_pages)
+        ]
+        return URL_list
+
+    @staticmethod
+    def _talent_url(position: str, location: str, number_pages=5) -> List[str]:
+        """
+        Function which returns the talent.com web page with job offers
+        Args:
+        - position: job position
+        - location: location of the job
+
+        Returns:
+        - str: URL with job offer
+        """
+        URL_list = [f"https://fr.talent.com/jobs?k={position}&l={location}&p={str(i+1)}" for i in range(number_pages)]
+        return URL_list
+
     def find_url_list(self, position: str, location: str) -> str:
         """
         Function which return according to the plateform, the position and the location the url to scrap
@@ -200,6 +233,11 @@ class WebpageScraper:
         if self.platform == "Cadre Emploi":
             URL_list = self._cadreemploi_url(position, location)
             return URL_list
+        if self.platform == "Welcome to the Jungle":
+            URL_list = self._wtj_url(position, location)
+            return URL_list
+        if self.platform == "Talent.com":
+            URL_list = self._talent_url(position, location)
 
     def scroll(self, driver: webdriver.Chrome, num_scrolls: int, scroll_pause_time: int):
         """
