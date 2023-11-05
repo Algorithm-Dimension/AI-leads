@@ -17,12 +17,10 @@ for platform in SOURCE_LIST_PIPELINE:
         url_list = WebpageScraper(platform=platform).find_url_list(job, location)
         for url in url_list:
             logger.info("We scrap this url: %s", url)
-            df_job = JobDataFrameCreator(SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION).create_table_with_job(
-                url, platform
-            )
+            df_job = JobDataFrameCreator().create_table_with_job(url, platform)
             df_job["position"] = job
             df_job["source"] = platform
             df_job["url"] = url
-            df_jobs = pd.concat([df_jobs, df_job], axis=0)
-
-df_jobs.to_csv("src/ai_leads/jobs_tests.csv", sep=";")
+            df_jobs = pd.concat([df_jobs, df_job])
+            print("df_jobs =", df_job)
+            df_jobs.to_csv("src/ai_leads/jobs_tests.csv", sep=";")

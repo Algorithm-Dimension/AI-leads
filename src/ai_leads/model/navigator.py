@@ -29,14 +29,14 @@ class WebpageScraper:
         Get the type of scrapping. True if we need to scroll. Else, False
 
         Args:
-        - platform: The platform job board where we want to retrueve the jobs
+        - platform: The platform job board where we want to retrieve the jobs
 
         Returns:
         - bool: True/False
         """
-        if platform in ["LinkedIn", "Indeed"]:
+        if platform in ["LinkedIn"]:
             return True
-        elif platform in ["Indeed"]:
+        elif platform in ["Indeed", "Hello Work", "Cadre Emploi"]:
             return False
         return True
 
@@ -50,18 +50,18 @@ class WebpageScraper:
         Returns:
         - str: HTML source of the webpage.
         """
-        if self.dynamic:
-            with webdriver.Chrome(options=self.options) as driver:
-                try:
-                    driver.get(url)
-                    driver.implicitly_wait(WAIT_TIME)
-                    # self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
-                    html_content = driver.page_source
-                    return html_content
-                except Exception as error:
-                    logger.info("An error occured: %s", error)
-        curl_command = f"curl {url}"
-        html_content = os.popen(curl_command).read()
+        with webdriver.Chrome(options=self.options) as driver:
+            try:
+                driver.get(url)
+                driver.implicitly_wait(WAIT_TIME)
+                if self.dynamic:
+                    self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
+                html_content = driver.page_source
+                return html_content
+            except Exception as error:
+                logger.info("An error occured: %s", error)
+        # curl_command = f"curl {url}"
+        # html_content = os.popen(curl_command).read()
         return html_content
 
     @staticmethod
@@ -145,6 +145,40 @@ class WebpageScraper:
         ]
         return URL_list
 
+    @staticmethod
+    def _hellowork_url(position: str, location: str, number_pages=5) -> List[str]:
+        """
+        Function which returns the indeed web page with job offers
+        Args:
+        - position: job position
+        - location: location of the job
+
+        Returns:
+        - str: URL with job offer
+        """
+        URL_list = [
+            f"https://www.hellowork.com/fr-fr/emploi/recherche.html?k={position}&l={location}&p={str(i+1)}&mode=pagination"
+            for i in range(number_pages)
+        ]
+        return URL_list
+
+    @staticmethod
+    def _cadreemploi_url(position: str, location: str, number_pages=5) -> List[str]:
+        """
+        Function which returns the indeed web page with job offers
+        Args:
+        - position: job position
+        - location: location of the job
+
+        Returns:
+        - str: URL with job offer
+        """
+        URL_list = [
+            f"https://www.cadremploi.fr/emploi/liste_offres?motscles={position}&ville={location}&page={str(i+1)}"
+            for i in range(number_pages)
+        ]
+        return URL_list
+
     def find_url_list(self, position: str, location: str) -> str:
         """
         Function which return according to the plateform, the position and the location the url to scrap
@@ -159,6 +193,12 @@ class WebpageScraper:
             return URL_list
         if self.platform == "Indeed":
             URL_list = self._indeed_url(position, location)
+            return URL_list
+        if self.platform == "Hello Work":
+            URL_list = self._hellowork_url(position, location)
+            return URL_list
+        if self.platform == "Cadre Emploi":
+            URL_list = self._cadreemploi_url(position, location)
             return URL_list
 
     def scroll(self, driver: webdriver.Chrome, num_scrolls: int, scroll_pause_time: int):

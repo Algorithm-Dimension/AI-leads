@@ -8,6 +8,7 @@ from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER
 from ai_leads.model.navigator import WebpageScraper
 
 # Setup logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -45,7 +46,7 @@ class JobDataFrameCreator(LLMManager):
 
         variable_list = utils.extract_variables(template)
 
-        if output_parser != None:
+        if output_parser is not None:
             format_instructions = output_parser.get_format_instructions()
             variable_list.remove("format_instructions")
             prompt = self.prepare_prompt(
@@ -71,17 +72,18 @@ class JobDataFrameCreator(LLMManager):
         pd.DataFrame: job listings table
         """
 
+        df = pd.DataFrame()
         template = TEMPLATE
         output_parser = OUTPUT_PARSER
         html_raw_code = WebpageScraper(platform, headless=False).fetch_readable_text(url)
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
         try:
             df = pd.read_csv(StringIO(response), sep=";")
-
+            df.columns = [col.strip() for col in df.columns]
+            print("DF Cols = ", list(df.columns))
         except Exception as error:
             logger.info("An error occured: %s", error)
             logger.info("LLM Response is: %s", response)
-        print("DF = ", df)
         return df
 
     @staticmethod

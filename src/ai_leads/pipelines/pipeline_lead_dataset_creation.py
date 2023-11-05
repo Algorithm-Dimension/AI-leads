@@ -3,6 +3,7 @@ import pandas as pd
 from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
 
 # Setup logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

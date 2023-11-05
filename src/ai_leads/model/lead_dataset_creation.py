@@ -74,11 +74,11 @@ class LeadDataFrameConverter:
         Returns:
             int: Number of days since the date represented by temp_string.
         """
-        parsed_date = dateparser.parse(temp_string, languages=["fr", "en"])
-        if parsed_date:
+        try:
+            parsed_date = dateparser.parse(temp_string, languages=["fr", "en"])
             today = datetime.now()
             delta = today - parsed_date
             return int(delta.days)
-        else:
-            logger.info(f"Failed to parse date from string: {temp_string}")
+        except Exception as error:
+            logger.info("Failed to parse date from string %s %s", temp_string, error)
             return np.nan
