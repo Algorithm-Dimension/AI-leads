@@ -3,19 +3,20 @@ import logging
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from ai_leads.Config.config_safe import API_KEY_RAPH
+from dotenv import load_dotenv
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Move the API key to environment variables for security reasons
-os.environ["OPENAI_API_KEY"] = API_KEY_RAPH
+# os.environ["OPENAI_API_KEY"] = API_KEY_RAPH
 
 
 class LLMManager:
     def __init__(self, model_name: str = "gpt-3.5-turbo-16k", temperature: float = 0.0):
         """Initialize the LLMManager with a model."""
+        load_dotenv()
         self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
 
     def prepare_prompt(self, template: str, input_vars: list = [], partial_vars: dict = {}) -> PromptTemplate:

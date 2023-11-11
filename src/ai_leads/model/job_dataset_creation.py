@@ -6,6 +6,7 @@ from ai_leads.model.llm_model import LLMManager
 import ai_leads.utils as utils
 from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER
 from ai_leads.model.navigator import WebpageScraper
+from langchain.output_parsers import StructuredOutputParser
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +31,9 @@ class JobDataFrameCreator(LLMManager):
         super().__init__()
         self.scraper = WebpageScraper()
 
-    def _find_job_list_url(self, url: str, html_raw_code: str, template: str, output_parser=None) -> str:
+    def _find_job_list_url(
+        self, url: str, html_raw_code: str, template: str, output_parser: StructuredOutputParser = None
+    ) -> str:
         """
         Find all the job offer of a web page
 

@@ -1,10 +1,9 @@
+import logging
 import time
 from bs4 import BeautifulSoup
-import logging
 from selenium import webdriver
-import os
+from urllib.parse import quote
 from typing import List
-import logging
 from ai_leads.Config.param import WAIT_TIME
 
 # Setup logging
@@ -38,7 +37,7 @@ class WebpageScraper:
             return True
         elif platform in ["Indeed", "Hello Work", "Cadre Emploi", "Welcome to the Jungle", "Talent.com"]:
             return False
-        return True
+        return False
 
     def fetch_html(self, url: str) -> str:
         """
@@ -255,3 +254,33 @@ class WebpageScraper:
             except Exception as err:
                 self.logger.info("Error while scrolling: %s", err)
                 return
+
+    def get_raw_google_links(self, query: str, num_results: int = 2) -> list[str]:
+        """
+        Get the raw links from a Google search.
+
+        Args:
+        - query: google query
+        - num_results: Number of results to fetch
+
+        Returns:
+        - list: list of URLs from the Google search.
+        """
+        links = []
+        n_pages = 2
+        for page in range(1, n_pages):
+            query_encoded = quote(query)
+            url = f"http://www.google.com/search?q={query_encoded}&start={(page - 1) * 10}"
+
+            try:
+                html_content = self.fetch_html(url)
+                soup = BeautifulSoup(html_content, "html.parser")
+                search_results = soup.find_all("div", class_="yuRUbf")
+
+                for result in search_results:
+                    link = result.a.get("href")
+                    if "pdf" not in link:
+                        links.append(link)
+            except Exception as err:
+                logger.info("An error occured %s", err)
+        return links[:num_results]

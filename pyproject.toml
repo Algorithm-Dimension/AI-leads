@@ -21,6 +21,7 @@ langchain = "^0.0.325"
 dateparser = "^1.1.8"
 openai = "^0.28.1"
 googlesearch-python = "^1.2.3"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "3.4.7"

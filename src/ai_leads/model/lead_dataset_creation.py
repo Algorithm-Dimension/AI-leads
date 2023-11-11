@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import dateparser
 from datetime import datetime
+from ai_leads.Config.param import template_verif, output_parser_verif
+from ai_leads.model.llm_model import LLMManager
+from ai_leads.model.navigator import WebpageScraper
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -25,6 +28,8 @@ class LeadDataFrameConverter:
         """
         self.df = df.copy()
         self.df.columns = [col.strip() for col in self.df.columns]
+        self.llm_manager = LLMManager()
+        self.scraper = WebpageScraper()
 
     def convert_time_column(self, col: str):
         """
@@ -81,4 +86,24 @@ class LeadDataFrameConverter:
             return int(delta.days)
         except Exception as error:
             logger.info("Failed to parse date from string %s %s", temp_string, error)
-            return np.nan
+            return -1
+
+    def verif_recruitment(self, company: str):
+        llm_manager = self.llm_manager
+        scraper = self.scraper
+        query = company
+        url_list = self.scraper.get_raw_google_links(query)
+        for url in url_list:
+            output_parser = output_parser_verif
+            format_instructions = output_parser.get_format_instructions()
+            html_raw_code = scraper.fetch_readable_text(url)
+            prompt = llm_manager.prepare_prompt(
+                template_verif,
+                input_vars=["company", "html_raw_code"],
+                partial_vars={"format_instructions": format_instructions},
+            )
+            response = llm_manager.run_llm_chain(prompt, company=company, html_raw_code=html_raw_code)
+            is_recruitement_company = output_parser.parse(response)["isRecruitmentCompany"]
+            if is_recruitement_company == "Yes":
+                return True
+        return False

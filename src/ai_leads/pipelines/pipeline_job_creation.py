@@ -23,4 +23,4 @@ for platform in SOURCE_LIST_PIPELINE:
             df_job["url"] = url
             df_jobs = pd.concat([df_jobs, df_job])
             print("df_jobs =", df_job)
-            df_jobs.to_csv("src/ai_leads/jobs_tests.csv", sep=";")
+            df_jobs.to_csv("data/jobs_tests.csv", sep=";")

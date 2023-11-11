@@ -7,7 +7,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-df_jobs = pd.read_csv("src/ai_leads/jobs_tests.csv", sep=";")
+df_jobs = pd.read_csv("data/jobs_tests.csv", sep=";")
 dfConverter = LeadDataFrameConverter(df_jobs)
 df_leads = dfConverter.convert_to_lead_dataframe(time_window=10)
-df_leads.to_csv("src/ai_leads/leads_tests.csv", sep=",")
+df_leads = df_leads.loc[~df_leads["Entreprise"].apply(dfConverter.verif_recruitment)]
+df_leads.to_csv("data/leads_tests.csv", sep=",")
