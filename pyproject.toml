@@ -22,6 +22,12 @@ dateparser = "^1.1.8"
 openai = "^0.28.1"
 googlesearch-python = "^1.2.3"
 python-dotenv = "^1.0.0"
+tiktoken = "^0.5.1"
+dash = "^2.14.1"
+auth = "^0.5.3"
+dash-bootstrap-components = "^1.5.0"
+dash-auth = "^2.0.0"
+xlsxwriter = "^3.1.9"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "3.4.7"

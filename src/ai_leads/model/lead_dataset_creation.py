@@ -56,9 +56,11 @@ class LeadDataFrameConverter:
             logger.info("An error occured while converting time: %s", error)
 
         self.df = self.df.loc[self.df["offer date clean"] <= time_window]
-
         df_lead = pd.DataFrame(self.df["company"].value_counts()).reset_index()
         df_lead.columns = ["Entreprise", f"Nombre d'offres postés les {time_window} derniers jours"]
+        df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.strip())
+        df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.lower())
+        df_lead = df_lead.groupby("Entreprise").sum()
         df_lead["Contacté"] = "Non"
         df_lead["Téléphone"] = np.nan
         df_lead["Email"] = np.nan
@@ -96,7 +98,8 @@ class LeadDataFrameConverter:
         for url in url_list:
             output_parser = output_parser_verif
             format_instructions = output_parser.get_format_instructions()
-            html_raw_code = scraper.fetch_readable_text(url)
+            html_raw_code_full = scraper.fetch_readable_text(url)
+            html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
             prompt = llm_manager.prepare_prompt(
                 template_verif,
                 input_vars=["company", "html_raw_code"],

@@ -30,6 +30,7 @@ class JobDataFrameCreator(LLMManager):
         """
         super().__init__()
         self.scraper = WebpageScraper()
+        self.llm_manager = LLMManager()
 
     def _find_job_list_url(
         self, url: str, html_raw_code: str, template: str, output_parser: StructuredOutputParser = None
@@ -78,12 +79,12 @@ class JobDataFrameCreator(LLMManager):
         df = pd.DataFrame()
         template = TEMPLATE
         output_parser = OUTPUT_PARSER
-        html_raw_code = WebpageScraper(platform, headless=False).fetch_readable_text(url)
+        html_raw_code_full = WebpageScraper(platform, headless=False).fetch_readable_text(url)
+        html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
         try:
             df = pd.read_csv(StringIO(response), sep=";")
             df.columns = [col.strip() for col in df.columns]
-            print("DF Cols = ", list(df.columns))
         except Exception as error:
             logger.info("An error occured: %s", error)
             logger.info("LLM Response is: %s", response)
