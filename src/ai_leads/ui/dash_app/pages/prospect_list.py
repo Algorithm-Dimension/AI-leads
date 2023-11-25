@@ -4,17 +4,17 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 from dash import html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL
 
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import search_bar
 
 # Data
 DATA_PATH = "data/"
-df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests.csv"), sep=",")
+df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_bis.csv"), sep=",")
 # df_final_result_uni["segment"] = "university"
-df_final_result_leads.fillna(np.nan, inplace=True)
-
+df_final_result_leads.replace("n.a.", np.nan, inplace=True)
+df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 """# Get unique food segments
 unique_segments = df_final_result_leads["segment"].unique().tolist()
 # Create a Dropdown component for selecting food providers
@@ -47,6 +47,22 @@ state_dropdown = dcc.Dropdown(
     placeholder="Select States",
     style={"border-color": "#ECECEC"},
 )"""
+
+
+@app.callback(
+    Output("contacted-output", "children"),
+    Input("contact-checkbox", "checked"),
+    State("contact-checkbox", "id"),
+)
+def update_contacted_status(checked_values, ids):
+    print("OKOK")
+    for checked, id_dict in zip(checked_values, ids):
+        id = id_dict["index"]
+        if checked:
+            df_final_result_leads.loc[df_final_result_leads["company_id"] == id, "Contacté"] = "Oui"
+        df_final_result_leads.to_csv("lead_tests_bis.csv", sep=",", index=False)
+    # Vous pouvez également renvoyer une sortie, si nécessaire
+    return
 
 
 @app.callback(
@@ -88,11 +104,13 @@ def update_prospect_list(
 
     # Create prospect cards with an 'Overview' button
     prospect_cards = []
-    for id, client, nb_offer in zip(
+    for id, client, nb_offer, already_contacted in zip(
         filtered_prospects["company_id"],
         filtered_prospects["Entreprise"],
         filtered_prospects["Nombre d'offres postés les 10 derniers jours"],
+        filtered_prospects["Contacté"],
     ):
+        contacted_checked = already_contacted == "Oui"
         prospect_cards.append(
             dbc.Card(
                 # [
@@ -150,6 +168,11 @@ def update_prospect_list(
                             html.P(f"À : Paris", style={"margin": "0"}),
                             html.P(
                                 f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}
+                            ),
+                            dbc.Checkbox(
+                                id="contacted-output",
+                                value=contacted_checked,
+                                label="Déjà Contacté ?",
                             ),
                         ],
                         style={

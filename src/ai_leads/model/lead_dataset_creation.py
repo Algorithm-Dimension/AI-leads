@@ -55,9 +55,19 @@ class LeadDataFrameConverter:
         except Exception as error:
             logger.info("An error occured while converting time: %s", error)
 
-        self.df = self.df.loc[self.df["offer date clean"] <= time_window]
-        df_lead = pd.DataFrame(self.df["company"].value_counts()).reset_index()
-        df_lead.columns = ["Entreprise", f"Nombre d'offres postés les {time_window} derniers jours"]
+        df_jobs = self.df.loc[self.df["offer date clean"] <= time_window]
+        df = df_jobs.groupby(["company_id", "company", "source"]).size().reset_index(name="count")
+        max_count_idx = df.groupby(["company_id", "company"])["count"].idxmax()
+
+        # Sélectionnez les lignes correspondantes dans le DataFrame d'origine
+        df_lead = df.loc[max_count_idx, ["company_id", "company", "source", "count"]]
+        # df_lead = pd.DataFrame(self.df["company"].value_counts()).reset_index()
+        df_lead.columns = [
+            "company_id",
+            "Entreprise",
+            "source",
+            f"Nombre d'offres postés les {time_window} derniers jours",
+        ]
         df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.strip())
         df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.lower())
         df_lead = df_lead.groupby("Entreprise").sum()

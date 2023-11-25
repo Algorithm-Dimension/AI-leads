@@ -31,7 +31,6 @@ def display_page(pathname):
         return prospect_list.layout, False, False
     elif "/list_offers/" in pathname:
         company = utils.extract_client_name(pathname)
-        print(company)
         return prospect_detail.layout_function(company), False, False
     # elif "/prospect_detail/corporate_id_" in pathname:
     #    id = utils.extract_client_name(pathname)

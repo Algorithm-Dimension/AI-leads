@@ -12,8 +12,6 @@ df_final_result_leads["company_id"] = df_final_result_leads["company_id"].astype
 
 def extract_client_name(path: str) -> str:
     id = path[len("/list_offers/") :]
-    print(id)
-    print(id in df_final_result_leads["company_id"])
     df_final_result_leads[df_final_result_leads["company_id"] == str(id)]
     company = df_final_result_leads[df_final_result_leads["company_id"] == str(id)]["Entreprise"].iloc[0]
     return company

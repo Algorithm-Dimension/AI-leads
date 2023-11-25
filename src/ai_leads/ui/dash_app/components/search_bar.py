@@ -16,7 +16,7 @@ search_bar = html.Div(
             dbc.Input(
                 id="search-input",
                 type="text",
-                placeholder="Search for a prospect",
+                placeholder="Recherchez un prospect",
                 className="form-control-lg",  # Augmente la taille de l'entrée
             ),
             dbc.Button(

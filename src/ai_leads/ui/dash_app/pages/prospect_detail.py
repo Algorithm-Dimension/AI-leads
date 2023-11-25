@@ -14,6 +14,11 @@ DATA_PATH = "data"
 df_jobs = pd.read_csv(os.path.join(DATA_PATH, "jobs_tests.csv"), sep=";")[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
 ]
+df_jobs.replace(["n.a.", "N.A."], np.nan, inplace=True)
+df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_bis.csv"), sep=",")
+# df_final_result_uni["segment"] = "university"
+df_final_result_leads.replace("n.a.", np.nan, inplace=True)
+df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
 
 def _create_job_div(row):
@@ -21,7 +26,6 @@ def _create_job_div(row):
     position = row["job name"]
     location = row["location"]
     offer_date = row["offer date"]
-    source_url = row["url"]
     source_platform = row["source"]
 
     # Create HTML components for each part of the meal plan
