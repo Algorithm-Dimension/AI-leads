@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 from dash import html
 from dash.dependencies import Input, Output, State, ALL
+from dash.exceptions import PreventUpdate
 
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import search_bar
+from ai_leads.ui.dash_app.components import search_bar, update_button
 
 # Data
 DATA_PATH = "data/"
@@ -50,19 +51,22 @@ state_dropdown = dcc.Dropdown(
 
 
 @app.callback(
-    Output("contacted-output", "children"),
-    Input("contact-checkbox", "checked"),
-    State("contact-checkbox", "id"),
+    Output("update-output", "children"),  # Update this if needed
+    Input("update-button", "n_clicks"),
+    State({"type": "contacted-output", "index": ALL}, "value"),
 )
-def update_contacted_status(checked_values, ids):
-    print("OKOK")
-    for checked, id_dict in zip(checked_values, ids):
-        id = id_dict["index"]
-        if checked:
-            df_final_result_leads.loc[df_final_result_leads["company_id"] == id, "Contacté"] = "Oui"
-        df_final_result_leads.to_csv("lead_tests_bis.csv", sep=",", index=False)
-    # Vous pouvez également renvoyer une sortie, si nécessaire
-    return
+def update_dataframe(n_clicks, checkbox_states):
+    if n_clicks is None or n_clicks < 1:
+        raise PreventUpdate
+    for company_id, state in zip(df_final_result_leads["company_id"], checkbox_states):
+        df_final_result_leads.loc[df_final_result_leads["company_id"] == company_id, "Contacté"] = (
+            "Oui" if state else "Non"
+        )
+
+    # Save the updated DataFrame
+    df_final_result_leads.to_csv(os.path.join(DATA_PATH, "leads_tests_bis.csv"), sep=",", index=False)
+
+    return "Dataframe Updated!"
 
 
 @app.callback(
@@ -147,7 +151,7 @@ def update_prospect_list(
                                 [
                                     html.H4(client.title()),
                                     dbc.Button(
-                                        [html.Img(src="../assets/svg/eye.svg"), "Overview"],
+                                        [html.Img(src="../assets/svg/eye.svg"), "Détail"],
                                         href=f"/list_offers/{id}",
                                         style={
                                             "display": "flex",
@@ -170,7 +174,7 @@ def update_prospect_list(
                                 f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}
                             ),
                             dbc.Checkbox(
-                                id="contacted-output",
+                                id={"type": "contacted-output", "index": id},  # Ensure this matches the company_id
                                 value=contacted_checked,
                                 label="Déjà Contacté ?",
                             ),
@@ -244,7 +248,8 @@ layout = html.Div(
         ),
         html.Div(
             [
-                # export_button.export_button,
+                update_button.update_button,
+                # html.Button("Update", id="update-button", n_clicks=0),
                 html.Div(
                     [
                         #        html.Div(
@@ -283,9 +288,14 @@ layout = html.Div(
                 "padding": "20px",
             },
         ),
+        html.Div(
+            id="update-output",
+            style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
+        ),
     ],
     style={"display": "flex", "flex-direction": "column", "background-color": "#F7F7F7"},
 )
+
 
 # dbc.Container(
 #     [
