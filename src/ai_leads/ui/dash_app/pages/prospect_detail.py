@@ -15,7 +15,7 @@ df_jobs = pd.read_csv(os.path.join(DATA_PATH, "jobs_tests.csv"), sep=";")[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
 ]
 df_jobs.replace(["n.a.", "N.A."], np.nan, inplace=True)
-df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_bis.csv"), sep=",")
+df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",")
 # df_final_result_uni["segment"] = "university"
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)

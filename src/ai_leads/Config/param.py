@@ -1,5 +1,6 @@
 import pandas as pd
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
+import os
 
 TEMPLATE = """
             You are analyzing the text extracted from a website with job positions : {url}.
@@ -67,3 +68,5 @@ JOB_LIST_PIPELINE = [
 LOCATION = "Paris"
 
 WAIT_TIME = 5
+DATA_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
+LEAD_FILE_PATH = os.path.join("data", "leads_tests.csv")

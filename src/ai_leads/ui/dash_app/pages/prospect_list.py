@@ -3,7 +3,7 @@ import os
 import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
-from dash import html
+from dash import html, dcc
 from dash.dependencies import Input, Output, State, ALL
 from dash.exceptions import PreventUpdate
 
@@ -12,42 +12,25 @@ from ai_leads.ui.dash_app.components import search_bar, update_button
 
 # Data
 DATA_PATH = "data/"
-df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_bis.csv"), sep=",")
+df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",")
 # df_final_result_uni["segment"] = "university"
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
-"""# Get unique food segments
-unique_segments = df_final_result_leads["segment"].unique().tolist()
+
+# Get unique food providers
+unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
 # Create a Dropdown component for selecting food providers
-segment_dropdown = dcc.Dropdown(
-    id="segment-dropdown",
-    options=[{"label": segment, "value": segment} for segment in unique_segments if not pd.isna(segment)],
+contact_dropdown = dcc.Dropdown(
+    id="contact-dropdown",
+    options=[
+        {"label": is_contacted, "value": is_contacted}
+        for is_contacted in unique_is_contacted
+        if not pd.isna(is_contacted)
+    ],
     multi=True,  # Allow multiple selections
-    placeholder="Select Segment",
+    placeholder="Sélectionnez le statut",
     style={"border-color": "#ECECEC"},
-)"""
-
-"""# Get unique food providers
-unique_food_providers = df_final_result_leads["foodProviderLLM"].unique().tolist()
-# Create a Dropdown component for selecting food providers
-food_provider_dropdown = dcc.Dropdown(
-    id="food-provider-dropdown",
-    options=[{"label": provider, "value": provider} for provider in unique_food_providers if not pd.isna(provider)],
-    multi=True,  # Allow multiple selections
-    placeholder="Select Food Providers",
-    style={"border-color": "#ECECEC"},
-)"""
-
-
-"""# Option List for the dropdown filter for states
-state_options = [{"label": name, "value": abbreviation} for abbreviation, name in state_data.items()]
-state_dropdown = dcc.Dropdown(
-    id="state-dropdown",
-    options=state_options,
-    multi=True,  # Allow multiple selections
-    placeholder="Select States",
-    style={"border-color": "#ECECEC"},
-)"""
+)
 
 
 @app.callback(
@@ -64,7 +47,7 @@ def update_dataframe(n_clicks, checkbox_states):
         )
 
     # Save the updated DataFrame
-    df_final_result_leads.to_csv(os.path.join(DATA_PATH, "leads_tests_bis.csv"), sep=",", index=False)
+    df_final_result_leads.to_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",", index=False)
 
     return "Dataframe Updated!"
 
@@ -72,7 +55,7 @@ def update_dataframe(n_clicks, checkbox_states):
 @app.callback(
     Output("university-list", "children"),
     State("search-input", "value"),
-    # Input("food-provider-dropdown", "value"),
+    Input("contact-dropdown", "value"),
     # Input("state-dropdown", "value"),
     # Input("segment-dropdown", "value"),
     Input("search-button", "n_clicks"),
@@ -80,9 +63,11 @@ def update_dataframe(n_clicks, checkbox_states):
 )
 def update_prospect_list(
     search_term="",
+    selected_is_contacted=None,
     n_clicks_search_button=0,
     n_submit_search_input=0,
 ):
+    df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",")
     if search_term:
         # Filter based on the search term
         filtered_prospects = df_final_result_leads.loc[
@@ -105,6 +90,10 @@ def update_prospect_list(
     # Filter prospect based on selected states
     if selected_segments:
         filtered_prospects = filtered_prospects[filtered_prospects["segment"].isin(selected_segments)]"""
+
+    # Filter prospect based on selected states
+    if selected_is_contacted:
+        filtered_prospects = filtered_prospects[filtered_prospects["Contacté"].isin(selected_is_contacted)]
 
     # Create prospect cards with an 'Overview' button
     prospect_cards = []
@@ -249,6 +238,25 @@ layout = html.Div(
         html.Div(
             [
                 update_button.update_button,
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [html.H5("Filters"), html.I(className="bi bi-funnel")],
+                                    style={
+                                        "display": "flex",
+                                        "flex-direction": "row",
+                                        "gap": "8px",
+                                        "align-items": "baseline",
+                                    },
+                                ),
+                                contact_dropdown,
+                            ],
+                            style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
+                        )
+                    ]
+                ),
                 # html.Button("Update", id="update-button", n_clicks=0),
                 html.Div(
                     [
