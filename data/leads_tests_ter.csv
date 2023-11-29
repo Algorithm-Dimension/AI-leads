@@ -1,7 +1,7 @@
 Unnamed: 0,Entreprise,company_id,source,Nombre d'offres postés les 10 derniers jours,Contacté,Téléphone,Email
 1,iscod,2,Cadre Emploi,157,Oui,,
-2,armée de l'air et de l'espace,1,Cadre Emploi,121,Non,,
-5,armée de terre française,5,Cadre Emploi,27,Non,,
+2,armée de l'air et de l'espace,1,Cadre Emploi,121,Oui,,
+5,armée de terre française,5,Cadre Emploi,27,Oui,,
 9,galeries lafayette,17,Indeed,19,Non,,
 15,groupe kering,33,Indeed,11,Non,,
 16,fiducial,32,Cadre Emploi,11,Non,,

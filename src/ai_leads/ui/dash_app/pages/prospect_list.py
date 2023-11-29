@@ -17,9 +17,9 @@ df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
-# Get unique food providers
 unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
 # Create a Dropdown component for selecting food providers
+global contact_dropdown
 contact_dropdown = dcc.Dropdown(
     id="contact-dropdown",
     options=[
@@ -28,7 +28,7 @@ contact_dropdown = dcc.Dropdown(
         if not pd.isna(is_contacted)
     ],
     multi=True,  # Allow multiple selections
-    placeholder="Sélectionnez le statut",
+    placeholder="Contacté",
     style={"border-color": "#ECECEC"},
 )
 
@@ -49,7 +49,7 @@ def update_dataframe(n_clicks, checkbox_states):
     # Save the updated DataFrame
     df_final_result_leads.to_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",", index=False)
 
-    return "Dataframe Updated!"
+    return
 
 
 @app.callback(
@@ -68,6 +68,21 @@ def update_prospect_list(
     n_submit_search_input=0,
 ):
     df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",")
+    # Get unique food providers
+    unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
+    # Create a Dropdown component for selecting food providers
+    global contact_dropdown
+    contact_dropdown = dcc.Dropdown(
+        id="contact-dropdown",
+        options=[
+            {"label": is_contacted, "value": is_contacted}
+            for is_contacted in unique_is_contacted
+            if not pd.isna(is_contacted)
+        ],
+        multi=True,  # Allow multiple selections
+        placeholder="Sélectionnez le statut",
+        style={"border-color": "#ECECEC"},
+    )
     if search_term:
         # Filter based on the search term
         filtered_prospects = df_final_result_leads.loc[
@@ -254,8 +269,13 @@ layout = html.Div(
                                 contact_dropdown,
                             ],
                             style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
-                        )
-                    ]
+                        ),
+                        html.Div(
+                            id="university-list",
+                            style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
+                        ),
+                    ],
+                    style={"display": "flex", "flex-direction": "row", "gap": "20px"},
                 ),
                 # html.Button("Update", id="update-button", n_clicks=0),
                 html.Div(
@@ -277,10 +297,6 @@ layout = html.Div(
                         #            ],
                         #            style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
                         #        ),
-                        html.Div(
-                            id="university-list",
-                            style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
-                        ),
                     ],
                     style={"display": "flex", "flex-direction": "row", "gap": "20px"},
                 ),
