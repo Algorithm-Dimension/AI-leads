@@ -258,7 +258,7 @@ layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.H5("Filters"), html.I(className="bi bi-funnel")],
+                                    [html.H5("Filtres"), html.I(className="bi bi-funnel")],
                                     style={
                                         "display": "flex",
                                         "flex-direction": "row",

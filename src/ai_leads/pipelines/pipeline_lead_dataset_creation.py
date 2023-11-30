@@ -19,5 +19,5 @@ recruiting_company_list = [company[:-1] for company in recruiting_company_list]
 
 df_leads = df_leads.loc[~df_leads["Entreprise"].str.lower().str.strip().isin(recruiting_company_list)]
 # df_leads = df_leads.loc[~df_leads["Entreprise"].apply(dfConverter.verif_recruitment)]
-df_leads.to_csv("data/leads_tests_ter.csv", sep=",")
+df_leads.to_csv("data/leads_tests_ter.csv", sep=",", index=False)
 # df_leads.to_csv(LEAD_FILE_PATH, sep=",")
