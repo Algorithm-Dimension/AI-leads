@@ -1,0 +1,82 @@
+/* Fichier CSS pour les styles personnalisés */
+
+/* Arrière-plan principal de la page */
+.main-background {
+    background-color: #b7babc;
+    /* Gris clair */
+}
+
+/* Arrière-plan de la section */
+.section-background {
+    padding: 1rem;
+    background-color: white;
+    /* Blanc pour le fond des sections */
+    border-radius: 0.25rem;
+}
+
+/* En-tête de la page */
+.page-header {
+    background-color: white;
+    border-bottom: none;
+}
+
+/* En-tête de chaque section */
+.section-header {
+    margin-bottom: 1rem;
+    color: #333;
+    /* Couleur foncée pour le texte de l'en-tête */
+}
+
+/* Carte de chaque section */
+.section-card {
+    border: none;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem;
+    /* Ombre légère pour la carte */
+}
+
+/* Texte de la carte */
+.card-text {
+    margin-bottom: 0.5rem;
+    color: #555;
+    /* Couleur moyennement foncée pour le texte normal */
+}
+
+
+/* Définition du style pour la barre de recherche pour qu'elle ressemble à celle de l'image */
+.search_bar_style {
+    position: relative;
+    margin-top: 20px;
+    /* Ajustez en fonction de votre en-tête */
+    margin-bottom: 20px;
+    /* Ajustez en fonction de votre en-tête */
+}
+
+.gray-space {
+    background-color: #f2f2f2;
+    /* Couleur grise de fond */
+    height: 20px;
+    /* Hauteur de l'espace gris (ajustez selon vos besoins) */
+    display: block;
+    /* Assurez-vous que l'élément est un bloc pour occuper l'espace correctement */
+}
+
+
+.text-red {
+    color: #3c00ff;
+}
+
+/* custom.css - Assurez-vous que ce fichier est inclus dans votre application Dash */
+
+/* Changement de la couleur de fond de l'élément de navigation actif */
+.nav-item .nav-link:active {
+    background-color: rgb(34, 85, 197) !important;
+    color: white !important;
+}
+
+/* Changement de la couleur de fond lorsque l'élément de navigation est survolé */
+.nav-item .nav-link:hover {
+    background-color: rgb(34, 85, 197) !important;
+    color: white !important;
+}
+
