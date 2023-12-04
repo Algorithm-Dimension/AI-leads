@@ -189,8 +189,9 @@ class WebpageScraper:
         Returns:
         - str: URL with job offer
         """
-        if position.lower() == "paris":
+        if location.lower() == "paris":
             zip_code = "75000"
+        zip_code = "75000"
         URL_list = [
             f"https://www.welcometothejungle.com/fr/pages/emploi-{position}-{location}-{zip_code}?page={str(i+1)}"
             for i in range(number_pages)

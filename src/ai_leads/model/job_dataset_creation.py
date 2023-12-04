@@ -7,6 +7,9 @@ import ai_leads.utils as utils
 from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER
 from ai_leads.model.navigator import WebpageScraper
 from langchain.output_parsers import StructuredOutputParser
+from unidecode import unidecode
+import os
+import re
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -85,6 +88,7 @@ class JobDataFrameCreator(LLMManager):
         try:
             df = pd.read_csv(StringIO(response), sep=";")
             df.columns = [col.strip() for col in df.columns]
+            df = df[df["location"].apply(lambda x: self.is_in_ile_de_france(x))]
         except Exception as error:
             logger.info("An error occured: %s", error)
             logger.info("LLM Response is: %s", response)
@@ -104,3 +108,20 @@ class JobDataFrameCreator(LLMManager):
         result_df = pd.concat(concatenated_dfs, ignore_index=True)
 
         return result_df
+
+    @staticmethod
+    def clean_str(string: str) -> str:
+        # Utiliser une expression régulière pour garder seulement les lettres de l'alphabet
+        clean_string = re.sub(r"[^a-zA-Z]", "", unidecode(string))
+        return clean_string.lower()
+
+    def is_in_ile_de_france(self, city: str) -> bool:
+        df_idf = pd.read_csv(os.path.join("data", "communes-dile-de-france-au-01-janvier.csv"), sep=";")
+        idf_location_list = df_idf["nomcom"].apply(lambda x: self.clean_str(x)).to_list()
+        idf_location_list.append("paris")
+        try:
+            if self.clean_str(city) in idf_location_list:
+                return True
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        return False

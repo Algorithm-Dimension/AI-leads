@@ -10,27 +10,42 @@ from dash import html, dcc, no_update
 from dash.dependencies import Input, Output, State
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components.header import header_prospect_detail
+from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
 
-DATA_PATH = "data"
-df_jobs = pd.read_csv(os.path.join(DATA_PATH, "jobs_tests.csv"), sep=";")[
+df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";")[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
 ]
 df_jobs.replace(["n.a.", "N.A."], np.nan, inplace=True)
-df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",", dtype=str)
+df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=",", dtype=str)
 # df_final_result_uni["segment"] = "university"
 df_final_result_leads.replace(["n.a.", "N.A."], np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
 
+def job_list_output(company: str) -> List[dbc.Row]:
+    """Fonction pour créer la liste des offres d'emploi sur l'application web"""
+    company = company.lower().strip()  # Convertir en minuscules et supprimer les espaces
+
+    if company in df_jobs["company"].str.lower().str.strip().tolist():
+        rows = df_jobs[df_jobs["company"].str.lower().str.strip() == company]
+
+        # Appliquer la fonction pour créer des div HTML pour chaque offre d'emploi
+        job_divs = rows.apply(_create_job_div, axis=1)
+
+        return job_divs.tolist()
+    return []
+
+
+# La fonction _create_job_div
 def _create_job_div(row):
-    # Extract the meal plan data from the row
+    # Extraire les données de l'offre d'emploi à partir de la ligne
     position = row["job name"]
     location = row["location"]
     offer_date = row["offer date"]
     source_platform = row["source"]
 
-    # Create HTML components for each part of the meal plan
-    position_html = html.H6(position.title(), className="mb-0")  # Meal plan name
+    # Créer des composants HTML pour chaque partie de l'offre d'emploi
+    position_html = html.H6(position.title(), className="mb-0")  # Nom du poste
     location_html = html.P(
         location,
         style={
@@ -40,11 +55,11 @@ def _create_job_div(row):
             "borderRadius": "4px",
             "color": "#0011CC",
         },
-    )  # Price info
-    offer_date_html = html.Small(offer_date, className="text-muted")  # Description
-    platform_html = html.Small(source_platform.title(), className="text-muted")  # Description
+    )  # Informations sur l'emplacement
+    offer_date_html = html.Small(offer_date, className="text-muted")  # Date de l'offre
+    platform_html = html.Small(source_platform.title(), className="text-muted")  # Plateforme source
 
-    # Compile the components into a single Div
+    # Compiler les composants dans une seule Div
     job_div = html.Div(
         [
             dbc.Row(
@@ -55,7 +70,7 @@ def _create_job_div(row):
                     dbc.Col(platform_html, width=2),
                 ],
                 className="my-2",
-                style={"border-bottom": "1px solid #ccc"},  # Add this line for border style
+                style={"border-bottom": "1px solid #ccc"},
             )
         ],
         className="p-2",
@@ -66,8 +81,8 @@ def _create_job_div(row):
 
 def job_list_output(company: str) -> List[dbc.Row]:
     """Function to create the list of job on the web app"""
-    if company in list(df_jobs["company"]):
-        rows = df_jobs[df_jobs["company"] == company]
+    if company in list(df_jobs["company"].str.lower().str.strip()):
+        rows = df_jobs[df_jobs["company"].str.lower().str.strip() == company]
         # Apply the function to create HTML divs for each meal plan
         job_divs = rows.apply(_create_job_div, axis=1)
         return job_divs.tolist()
@@ -114,7 +129,7 @@ def save_personal_notes(n_clicks, notes, company):
             df_final_result_leads["Entreprise"].str.lower().str.strip() == company.lower().strip(), "Notes"
         ] = notes
         # Save the updated DataFrame
-        df_final_result_leads.to_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",", index=False)
+        df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=",", index=False)
         return no_update
     return no_update
 

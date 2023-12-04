@@ -11,8 +11,6 @@ logger = logging.getLogger(__name__)
 df_jobs = pd.read_csv("data/jobs_tests.csv", sep=";")
 dfConverter = LeadDataFrameConverter(df_jobs)
 df_leads = dfConverter.convert_to_lead_dataframe(time_window=10)
-df_leads.reset_index(inplace=True)
-
 with open(DATA_RECRUITING_PATH, "r") as file:
     recruiting_company_list = file.readlines()
 recruiting_company_list = [company[:-1] for company in recruiting_company_list]

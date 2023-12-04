@@ -56,14 +56,13 @@ class LeadDataFrameConverter:
             logger.info("An error occured while converting time: %s", error)
 
         df_jobs = self.df.loc[self.df["offer date clean"] <= time_window]
-        df = df_jobs.groupby(["company_id", "company", "source"]).size().reset_index(name="count")
-        max_count_idx = df.groupby(["company_id", "company"])["count"].idxmax()
+        df = df_jobs.groupby(["company", "source"]).size().reset_index(name="count")
+        max_count_idx = df.groupby(["company"])["count"].idxmax()
 
         # Sélectionnez les lignes correspondantes dans le DataFrame d'origine
-        df_lead = df.loc[max_count_idx, ["company_id", "company", "source", "count"]]
+        df_lead = df.loc[max_count_idx, ["company", "source", "count"]]
         # df_lead = pd.DataFrame(self.df["company"].value_counts()).reset_index()
         df_lead.columns = [
-            "company_id",
             "Entreprise",
             "source",
             f"Nombre d'offres postés les {time_window} derniers jours",
@@ -71,9 +70,12 @@ class LeadDataFrameConverter:
         df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.strip())
         df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.lower())
         df_lead = df_lead.groupby("Entreprise").sum()
+        df_lead.reset_index(inplace=True)
         df_lead["Contacté"] = "Non"
         df_lead["Téléphone"] = np.nan
         df_lead["Email"] = np.nan
+        df_lead["Notes"] = ""
+        df_lead["website_url"] = df_lead["Entreprise"].apply(lambda x: self.add_web_site_url(x))
         df_lead.sort_values(
             by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True
         )
@@ -100,7 +102,7 @@ class LeadDataFrameConverter:
             logger.info("Failed to parse date from string %s %s", temp_string, error)
             return -1
 
-    def verif_recruitment(self, company: str):
+    def verif_recruitment(self, company: str) -> bool:
         llm_manager = self.llm_manager
         scraper = self.scraper
         query = company
@@ -120,3 +122,11 @@ class LeadDataFrameConverter:
             if is_recruitement_company == "Yes":
                 return True
         return False
+
+    def add_web_site_url(self, company: str) -> str:
+        logger.info("company: %s", company)
+        query = company
+        url_list = self.scraper.get_raw_google_links(query, num_results=1)
+        if len(url_list) > 0:
+            return url_list[0]
+        return "https://www.google.com"

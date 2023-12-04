@@ -19,9 +19,8 @@ app = Dash(
     suppress_callback_exceptions=True,
     title="Kara leads",
 )
-"""VALID_USERNAME_PASSWORD_PAIRS = {"hello": "world"}
 auth = dash_auth.BasicAuth(
     app,
     {os.environ.get("DASH_USERNAME"): os.environ.get("DASH_PASSWORD")},
-)"""
+)
 server = app.server  # Expose le serveur pour le déploiement

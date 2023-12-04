@@ -6,19 +6,20 @@ import pandas as pd
 from dash import html, dcc
 from dash.dependencies import Input, Output, State, ALL
 from dash.exceptions import PreventUpdate
-
+from unidecode import unidecode
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import search_bar, update_button
+from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
+
 
 # Data
 DATA_PATH = "data/"
-df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",")
-# df_final_result_uni["segment"] = "university"
+df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=",")
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
-unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
-# Create a Dropdown component for selecting food providers
+unique_is_contacted = ["Oui", "Non"]
+# Create a Dropdown component for selecting contact status
 global contact_dropdown
 contact_dropdown = dcc.Dropdown(
     id="contact-dropdown",
@@ -41,13 +42,13 @@ contact_dropdown = dcc.Dropdown(
 def update_dataframe(n_clicks, checkbox_states):
     if n_clicks is None or n_clicks < 1:
         raise PreventUpdate
-    for company_id, state in zip(df_final_result_leads["company_id"], checkbox_states):
-        df_final_result_leads.loc[df_final_result_leads["company_id"] == company_id, "Contacté"] = (
-            "Oui" if state else "Non"
-        )
+    for company, state in zip(df_final_result_leads["Entreprise"], checkbox_states):
+        df_final_result_leads.loc[
+            df_final_result_leads["Entreprise"].apply(lambda x: unidecode(x)) == unidecode(company), "Contacté"
+        ] = ("Oui" if state else "Non")
 
     # Save the updated DataFrame
-    df_final_result_leads.to_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",", index=False)
+    df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=",", index=False)
 
     return
 
@@ -67,7 +68,7 @@ def update_prospect_list(
     n_clicks_search_button=0,
     n_submit_search_input=0,
 ):
-    df_final_result_leads = pd.read_csv(os.path.join(DATA_PATH, "leads_tests_ter.csv"), sep=",")
+    df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=",")
     # Get unique food providers
     unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
     # Create a Dropdown component for selecting food providers
@@ -112,11 +113,11 @@ def update_prospect_list(
 
     # Create prospect cards with an 'Overview' button
     prospect_cards = []
-    for id, client, nb_offer, already_contacted in zip(
-        filtered_prospects["company_id"],
+    for client, nb_offer, already_contacted, website_url in zip(
         filtered_prospects["Entreprise"],
         filtered_prospects["Nombre d'offres postés les 10 derniers jours"],
         filtered_prospects["Contacté"],
+        filtered_prospects["website_url"],
     ):
         contacted_checked = already_contacted == "Oui"
         prospect_cards.append(
@@ -153,10 +154,21 @@ def update_prospect_list(
                         [
                             html.Div(
                                 [
-                                    html.H4(client.title()),
+                                    dbc.Col(
+                                        html.A(
+                                            client.title(),
+                                            href=website_url,
+                                        ),
+                                        style={
+                                            "text-decoration": "underline",
+                                            "cursor": "pointer",
+                                            "font-weight": "bold",
+                                            "font-size": "16px",
+                                        },
+                                    ),
                                     dbc.Button(
                                         [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                        href=f"/list_offers/{id}",
+                                        href=f"/list_offers/{unidecode(client).replace(' ', '')}",
                                         style={
                                             "display": "flex",
                                             "flex-direction": "row",
@@ -178,7 +190,7 @@ def update_prospect_list(
                                 f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}
                             ),
                             dbc.Checkbox(
-                                id={"type": "contacted-output", "index": id},  # Ensure this matches the company_id
+                                id={"type": "contacted-output", "index": ""},
                                 value=contacted_checked,
                                 label="Déjà Contacté ?",
                             ),
@@ -319,41 +331,3 @@ layout = html.Div(
     ],
     style={"display": "flex", "flex-direction": "column", "background-color": "#F7F7F7"},
 )
-
-
-# dbc.Container(
-#     [
-#         dbc.Row(
-#             [
-#                 dbc.Col(search_bar.search_bar, md={"size": 6, "offset": 0}),  # Modifié l'offset à 0
-#                 dbc.Col(
-#                     [
-#                         dbc.Row(
-#                             dbc.Col(export_button.export_button, className="text-right mt-4"), justify="end"
-#                         ),  # Utilisation de justify="end" pour aligner le bouton à droite et ajout de mt-4 pour une plus grande marge supérieure
-#                     ],
-#                     md={"size": 6, "offset": 0},  # Modifié la largeur à 6
-#                 ),
-#             ]
-#         ),
-#         dbc.Row(
-#             [
-#                 dbc.Col(  # Colonne pour les filtres
-#                     [
-#                         html.Br(),
-#                         food_provider_dropdown,
-#                         html.Br(),  # Ajouter une petite marge verticale si nécessaire
-#                         state_dropdown,
-#                         html.Br(),  # Ajouter une petite marge verticale si nécessaire
-#                         segment_dropdown,
-#                     ],
-#                     width=3,  # La largeur peut être ajustée selon le besoin
-#                 ),
-#                 dbc.Col(  # Colonne pour la liste des universités
-#                     html.Div(id="university-list"), width=9  # La largeur peut être ajustée selon le besoin
-#                 ),
-#             ]
-#         ),
-#     ],
-#     fluid=True,
-# )
