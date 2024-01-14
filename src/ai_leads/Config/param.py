@@ -1,7 +1,10 @@
 import pandas as pd
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 import os
+from datetime import datetime
 
+BASE_DATE = datetime.today()
+BASE_DATE = datetime(2023, 12, 4)
 TEMPLATE = """
             You are analyzing the text extracted from a website with job positions : {url}.
             Using this information, give a chart with ALL the:

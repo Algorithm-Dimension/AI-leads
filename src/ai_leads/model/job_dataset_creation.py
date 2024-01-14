@@ -4,9 +4,11 @@ from typing import Dict
 from io import StringIO
 from ai_leads.model.llm_model import LLMManager
 import ai_leads.utils as utils
-from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER
+from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER, BASE_DATE
 from ai_leads.model.navigator import WebpageScraper
 from langchain.output_parsers import StructuredOutputParser
+import dateparser
+from datetime import datetime
 from unidecode import unidecode
 import os
 import re
@@ -88,7 +90,8 @@ class JobDataFrameCreator(LLMManager):
         try:
             df = pd.read_csv(StringIO(response), sep=";")
             df.columns = [col.strip() for col in df.columns]
-            df = df[df["location"].apply(lambda x: self.is_in_ile_de_france(x))]
+            df = df.loc[df["location"].apply(lambda x: self.is_in_ile_de_france(x))]
+            df = df.loc[df["offer date"].apply(lambda x: self.convert_to_date(x))]
         except Exception as error:
             logger.info("An error occured: %s", error)
             logger.info("LLM Response is: %s", response)
@@ -125,3 +128,24 @@ class JobDataFrameCreator(LLMManager):
         except Exception as e:
             print(f"An error occurred: {e}")
         return False
+
+    @staticmethod
+    def convert_to_date(temp_string: str) -> str:
+        """
+        Convert a temporal string into a date in string.
+
+        Args:
+            temp_string (str): The temporal string, e.g., "il y a 3 jours".
+
+        Returns:
+            int: Number of days since the date represented by temp_string.
+        """
+        try:
+            parsed_date = dateparser.parse(temp_string, languages=["fr", "en"])
+            today = datetime.now()
+            delta = today - parsed_date
+            date_of_position = BASE_DATE - delta
+            return date_of_position.strftime("%d-%m-%Y")
+        except Exception as error:
+            logger.info("Failed to parse date from string %s %s", temp_string, error)
+            return temp_string
