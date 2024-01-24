@@ -68,11 +68,16 @@ JOB_LIST_PIPELINE = [
     "Hôte/Hôtesse D'accueil",
     "Office Manager",
 ]
+
+JOB_LIST_PIPELINE = ["Acheteur"]
+SOURCE_LIST_PIPELINE = ["Cadre Emploi"]
+
 LOCATION = "Paris"
 
 WAIT_TIME = 5
 DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
+DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
 LEAD_FILE_PATH = os.path.join("data", "leads_tests.csv")
 JOB_FILE_PATH = os.path.join("data", "jobs_tests.csv")

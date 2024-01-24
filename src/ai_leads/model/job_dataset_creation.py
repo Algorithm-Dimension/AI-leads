@@ -4,7 +4,7 @@ from typing import Dict
 from io import StringIO
 from ai_leads.model.llm_model import LLMManager
 import ai_leads.utils as utils
-from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER, BASE_DATE
+from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER, BASE_DATE, DATA_IDF_CITY_PATH
 from ai_leads.model.navigator import WebpageScraper
 from langchain.output_parsers import StructuredOutputParser
 import dateparser
@@ -90,8 +90,10 @@ class JobDataFrameCreator(LLMManager):
         try:
             df = pd.read_csv(StringIO(response), sep=";")
             df.columns = [col.strip() for col in df.columns]
+            logger.info("We just keep idf cities")
             df = df.loc[df["location"].apply(lambda x: self.is_in_ile_de_france(x))]
-            df = df.loc[df["offer date"].apply(lambda x: self.convert_to_date(x))]
+            logger.info("We process date")
+            df["offer date"] = df["offer date"].apply(lambda x: self.convert_to_date(x))
         except Exception as error:
             logger.info("An error occured: %s", error)
             logger.info("LLM Response is: %s", response)
@@ -119,9 +121,9 @@ class JobDataFrameCreator(LLMManager):
         return clean_string.lower()
 
     def is_in_ile_de_france(self, city: str) -> bool:
-        df_idf = pd.read_csv(os.path.join("data", "communes-dile-de-france-au-01-janvier.csv"), sep=";")
-        idf_location_list = df_idf["nomcom"].apply(lambda x: self.clean_str(x)).to_list()
-        idf_location_list.append("paris")
+        with open(DATA_IDF_CITY_PATH, "r") as file:
+            idf_location_list = file.readlines()
+        idf_location_list = [city[:-1] for city in idf_location_list]
         try:
             if self.clean_str(city) in idf_location_list:
                 return True
@@ -145,7 +147,9 @@ class JobDataFrameCreator(LLMManager):
             today = datetime.now()
             delta = today - parsed_date
             date_of_position = BASE_DATE - delta
-            return date_of_position.strftime("%d-%m-%Y")
+            date_of_position_str = date_of_position.strftime("%d-%m-%Y")
+            print(date_of_position_str)
+            return date_of_position_str
         except Exception as error:
             logger.info("Failed to parse date from string %s %s", temp_string, error)
             return temp_string

@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from ai_leads.Config.param import SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION
+from ai_leads.Config.param import SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION, JOB_FILE_PATH
 from ai_leads.model.navigator import WebpageScraper
 from ai_leads.model.job_dataset_creation import JobDataFrameCreator
 
@@ -23,4 +23,4 @@ for platform in SOURCE_LIST_PIPELINE:
             df_job["url"] = url
             df_jobs = pd.concat([df_jobs, df_job])
             print("df_jobs =", df_job)
-            df_jobs.to_csv("data/jobs_tests.csv", sep=";")
+            df_jobs.to_csv(JOB_FILE_PATH, sep=";")
