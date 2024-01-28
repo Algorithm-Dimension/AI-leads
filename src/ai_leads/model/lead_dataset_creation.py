@@ -3,7 +3,13 @@ import numpy as np
 import pandas as pd
 import dateparser
 from datetime import datetime
-from ai_leads.Config.param import template_verif, output_parser_verif
+from ai_leads.Config.param import (
+    CompanyActivity,
+    template_verif,
+    output_parser_verif,
+    template_find_activity,
+    enum_parser_activity,
+)
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper
 
@@ -102,28 +108,72 @@ class LeadDataFrameConverter:
             logger.info("Failed to parse date from string %s %s", temp_string, error)
             return -1
 
-    def verif_recruitment(self, company: str) -> bool:
+    def determine_activity_sector(self, company: str) -> str:
+        """
+        Determine the activity sector of a company by doing research on the web and asking questions to chatGPT
+
+        Args:
+            company (str): the company name
+
+        Returns:
+            str: the activity sector: Recruiting, education/formation, other, unknown
+        """
+        activity_list = []
         llm_manager = self.llm_manager
         scraper = self.scraper
         query = company
         url_list = self.scraper.get_raw_google_links(query)
         for url in url_list:
-            output_parser = output_parser_verif
+            output_parser = enum_parser_activity
             format_instructions = output_parser.get_format_instructions()
             html_raw_code_full = scraper.fetch_readable_text(url)
             html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
             prompt = llm_manager.prepare_prompt(
-                template_verif,
+                template_find_activity,
                 input_vars=["company", "html_raw_code"],
                 partial_vars={"format_instructions": format_instructions},
             )
-            response = llm_manager.run_llm_chain(prompt, company=company, html_raw_code=html_raw_code)
-            is_recruitement_company = output_parser.parse(response)["isRecruitmentCompany"]
-            if is_recruitement_company == "Yes":
-                return True
-        return False
+            response = llm_manager.run_llm_chain(
+                prompt, company=company, html_raw_code=html_raw_code, format_instructions=format_instructions
+            )
+            activity_sector = output_parser.parse(response).value
+            activity_list.append(activity_sector)
+
+        # La priorité est de reconnaitre les agences de recrutements, donc si un des liens
+        # nous signale que c'est une agence de recrutement, on la marque comme telle.
+        # Ensuite, il faut repréer formation/education, car c'est difficile
+        # de trouver les responsables rh sur Linkedin pour ces entreprises
+
+        if CompanyActivity.RECRUITING.value in activity_list:
+            return CompanyActivity.RECRUITING.value
+        elif CompanyActivity.FORMATION_ECOLE.value in activity_list:
+            return CompanyActivity.FORMATION_ECOLE.value
+        else:
+            return activity_list[0]
+
+    def verif_recruitment(self, company: str) -> bool:
+        """
+        Determine if a company is a recruiting company or not
+
+        Args:
+            company (str): the company name
+
+        Returns:
+            bool: True or False if it is a recruiting company
+        """
+        activity_sector = self.determine_activity_sector(company)
+        return activity_sector == CompanyActivity.RECRUITING.value
 
     def add_web_site_url(self, company: str) -> str:
+        """
+        Find the website of a company
+
+        Args:
+            company (str): the company name
+
+        Returns:
+            str: company website
+        """
         logger.info("company: %s", company)
         query = company
         url_list = self.scraper.get_raw_google_links(query, num_results=1)
