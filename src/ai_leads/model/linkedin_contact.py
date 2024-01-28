@@ -1,5 +1,7 @@
 import logging
 from ai_leads.model.navigator import WebpageScraper
+from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
+
 from typing import List
 
 # Setup logging
@@ -11,6 +13,7 @@ class LinkedInContactRetriever:
 
     def __init__(self):
         self.scraper = WebpageScraper()
+        self.converter = LeadDataFrameConverter()
 
     @staticmethod
     def format_query(company: str) -> str:

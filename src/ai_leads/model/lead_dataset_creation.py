@@ -25,7 +25,7 @@ class LeadDataFrameConverter:
         df (pd.DataFrame): The input dataframe.
     """
 
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame = pd.DataFrame()):
         """
         Initializes the LeadDataFrameConverter with a dataframe.
 
