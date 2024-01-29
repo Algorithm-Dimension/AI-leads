@@ -83,14 +83,14 @@ DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
 LEAD_FILE_PATH = os.path.join("data", "leads_tests.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_tests_22_jan.csv")
+COMPANY_FILE_PATH = os.path.join("data", "table_companies_test.csv")
 
 
 class CompanyActivity(Enum):
     RECRUITING = "Recruitment"
     FORMATION_ECOLE = "Formation/Education"
     OTHER = "Other"
-    NA = "No Answer"
 
 
 template_find_activity = """

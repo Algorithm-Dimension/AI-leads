@@ -1,4 +1,5 @@
 import re
+from unidecode import unidecode
 
 
 def extract_variables(text):
@@ -10,3 +11,9 @@ def extract_variables(text):
 def filter_dictionary(input_dict, key_list):
     filtered_dict = {key: input_dict[key] for key in key_list if key in input_dict}
     return filtered_dict
+
+
+def clean_str_unidecode(string: str) -> str:
+    # Utiliser une expression régulière pour garder seulement les lettres de l'alphabet
+    clean_string = unidecode(string).replace(" ", "").lower()
+    return clean_string.lower()

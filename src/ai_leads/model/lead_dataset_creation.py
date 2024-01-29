@@ -12,6 +12,7 @@ from ai_leads.Config.param import (
 )
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper
+from ai_leads import utils
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -73,8 +74,7 @@ class LeadDataFrameConverter:
             "source",
             f"Nombre d'offres postés les {time_window} derniers jours",
         ]
-        df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.strip())
-        df_lead["Entreprise"] = df_lead["Entreprise"].apply(lambda x: x.lower())
+        df_lead["Entreprise"] = df_lead["Entreprise"].apply(utils.clean_str_unidecode)
         df_lead = df_lead.groupby("Entreprise").sum()
         df_lead.reset_index(inplace=True)
         df_lead["Contacté"] = "Non"
@@ -83,7 +83,7 @@ class LeadDataFrameConverter:
         df_lead["Notes"] = ""
         df_lead["website_url"] = df_lead["Entreprise"].apply(lambda x: self.add_web_site_url(x))
         df_lead.sort_values(
-            by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True
+            by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True  # noqa: E501
         )
 
         return df_lead
@@ -124,19 +124,22 @@ class LeadDataFrameConverter:
         query = company
         url_list = self.scraper.get_raw_google_links(query)
         for url in url_list:
-            output_parser = enum_parser_activity
-            format_instructions = output_parser.get_format_instructions()
-            html_raw_code_full = scraper.fetch_readable_text(url)
-            html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
-            prompt = llm_manager.prepare_prompt(
-                template_find_activity,
-                input_vars=["company", "html_raw_code"],
-                partial_vars={"format_instructions": format_instructions},
-            )
-            response = llm_manager.run_llm_chain(
-                prompt, company=company, html_raw_code=html_raw_code, format_instructions=format_instructions
-            )
-            activity_sector = output_parser.parse(response).value
+            try:
+                output_parser = enum_parser_activity
+                format_instructions = output_parser.get_format_instructions()
+                html_raw_code_full = scraper.fetch_readable_text(url)
+                html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
+                prompt = llm_manager.prepare_prompt(
+                    template_find_activity,
+                    input_vars=["company", "html_raw_code"],
+                    partial_vars={"format_instructions": format_instructions},
+                )
+                response = llm_manager.run_llm_chain(
+                    prompt, company=company, html_raw_code=html_raw_code, format_instructions=format_instructions
+                )
+                activity_sector = output_parser.parse(response).value
+            except Exception:
+                activity_sector = CompanyActivity.OTHER.value
             activity_list.append(activity_sector)
 
         # La priorité est de reconnaitre les agences de recrutements, donc si un des liens
