@@ -2,6 +2,8 @@ import pandas as pd
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 import os
 from datetime import datetime
+from langchain.output_parsers.enum import EnumOutputParser
+from enum import Enum
 
 BASE_DATE = datetime.today()
 BASE_DATE = datetime(2023, 12, 4)
@@ -31,6 +33,7 @@ template_verif = (
 output_parser_verif = StructuredOutputParser.from_response_schemas(
     [ResponseSchema(name="isRecruitmentCompany", description="Answer to question 1")]
 )
+
 # Nombre de jour à retenir pour le compte des offres
 TIME_WINDOW = 10
 OUTPUT_PARSER = None
@@ -81,3 +84,19 @@ DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
 LEAD_FILE_PATH = os.path.join("data", "leads_tests.csv")
 JOB_FILE_PATH = os.path.join("data", "jobs_tests.csv")
+
+
+class CompanyActivity(Enum):
+    RECRUITING = "Recruitment"
+    FORMATION_ECOLE = "Formation/Education"
+    OTHER = "Other"
+    NA = "No Answer"
+
+
+template_find_activity = """
+    What is the activity sector of the company, according to this text ?
+    > Text: {html_raw_code}
+    Please, answer using the following instructions. Don't do anything else
+    Instructions: {format_instructions}"""
+
+enum_parser_activity = EnumOutputParser(enum=CompanyActivity)
