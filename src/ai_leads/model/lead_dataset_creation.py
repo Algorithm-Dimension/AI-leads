@@ -118,6 +118,7 @@ class LeadDataFrameConverter:
         Returns:
             str: the activity sector: Recruiting, education/formation, other, unknown
         """
+        logger.info("Search activity sector for: %s", company)
         activity_list = []
         llm_manager = self.llm_manager
         scraper = self.scraper
@@ -177,7 +178,7 @@ class LeadDataFrameConverter:
         Returns:
             str: company website
         """
-        logger.info("company: %s", company)
+        logger.info("Search URL for: %s", company)
         query = company
         url_list = self.scraper.get_raw_google_links(query, num_results=1)
         if len(url_list) > 0:

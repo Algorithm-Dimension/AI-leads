@@ -20,28 +20,39 @@ existing_companies = set(df_companies["company"].apply(utils.clean_str_unidecode
 
 # Find companies from company_list not in df_companies
 new_companies = [
-    company for company in company_list if utils.clean_str_unidecode(company) not in existing_companies
-]  # noqa: E501
+    utils.clean_str_classic(company)
+    for company in company_list
+    if utils.clean_str_unidecode(company) not in existing_companies  # noqa: E501
+]
 
 # Create a DataFrame with np.nan values for these new companies
 new_companies_df = pd.DataFrame({"company": new_companies})
 new_companies_df = new_companies_df.assign(
-    **{col: np.nan for col in df_companies.columns if col != "company"}
-)  # noqa: E501
+    **{col: np.nan for col in df_companies.columns if col != "company"}  # noqa: E501
+)
 
 # add this DataFrame to df_companies using pd.concat
 df_companies = pd.concat([df_companies, new_companies_df], ignore_index=True)
 
-# Now you can proceed to save the updated df_companies
+# Save the table
 df_companies.to_csv(COMPANY_FILE_PATH, sep=";", index=False)
 
+
 # Fill missing values in the "activity_sector" column of df_companies
-# based on the company name using the dfConverter.determine_activity_sector function
 missing_activity_sector_mask = df_companies["activity_sector"].isna()
-print(missing_activity_sector_mask)
 df_companies.loc[missing_activity_sector_mask, "activity_sector"] = df_companies.loc[
     missing_activity_sector_mask, "company"
 ].apply(LeadDataFrameConverter().determine_activity_sector)
 
+# Save the updated df_companies DataFrame to the CSV file
+df_companies.to_csv(COMPANY_FILE_PATH, sep=";", index=False)
+
+# Fill missing values in the "website_url" column of df_companies
+missing_website_mask = df_companies["website_url"].isna()
+df_companies.loc[missing_website_mask, "website_url"] = df_companies.loc[
+    missing_website_mask, "company"
+].apply(  # noqa: E501
+    LeadDataFrameConverter().add_web_site_url
+)
 # Save the updated df_companies DataFrame to the CSV file
 df_companies.to_csv(COMPANY_FILE_PATH, sep=";", index=False)

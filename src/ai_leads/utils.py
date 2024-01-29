@@ -14,6 +14,11 @@ def filter_dictionary(input_dict, key_list):
 
 
 def clean_str_unidecode(string: str) -> str:
-    # Utiliser une expression régulière pour garder seulement les lettres de l'alphabet
     clean_string = unidecode(string).replace(" ", "").lower()
-    return clean_string.lower()
+    return clean_string
+
+
+def clean_str_classic(string: str) -> str:
+    # Utiliser une expression régulière pour garder seulement les lettres de l'alphabet
+    clean_string = string.strip().lower().title()
+    return clean_string
