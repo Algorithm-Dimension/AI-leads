@@ -13,7 +13,7 @@ class LinkedInContactRetriever:
 
     def __init__(self):
         self.scraper = WebpageScraper()
-        self.converter = LeadDataFrameConverter()
+        self.lead_converter = LeadDataFrameConverter()
 
     @staticmethod
     def format_query(company: str) -> str:
@@ -52,7 +52,7 @@ class LinkedInContactRetriever:
             company (str): name of the company
 
         Returns:
-            List: list of relavtn urls
+            List: list of relevant urls
         """
         scraper = self.scraper
         query = self.format_query(company)
