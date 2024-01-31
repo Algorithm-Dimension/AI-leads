@@ -14,7 +14,7 @@ class WebpageScraper:
     """A utility class to scrape web pages using Selenium and
     parse content with BeautifulSoup."""
 
-    def __init__(self, platform: str = "", headless: bool = True):
+    def __init__(self, platform: str = "", headless: bool = False):
         self.options = webdriver.ChromeOptions()
         if headless:
             self.options.add_argument("--headless")
@@ -277,7 +277,6 @@ class WebpageScraper:
                 html_content = self.fetch_html(url)
                 soup = BeautifulSoup(html_content, "html.parser")
                 search_results = soup.find_all("div", class_="yuRUbf")
-
                 for result in search_results:
                     link = result.a.get("href")
                     if "pdf" not in link:

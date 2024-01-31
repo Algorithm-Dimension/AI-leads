@@ -74,14 +74,9 @@ class LeadDataFrameConverter:
             "source",
             f"Nombre d'offres postés les {time_window} derniers jours",
         ]
-        df_lead["Entreprise"] = df_lead["Entreprise"].apply(utils.clean_str_unidecode)
+        df_lead["Entreprise"] = df_lead["Entreprise"].apply(utils.clean_str_classic)
         df_lead = df_lead.groupby("Entreprise").sum()
         df_lead.reset_index(inplace=True)
-        df_lead["Contacté"] = "Non"
-        df_lead["Téléphone"] = np.nan
-        df_lead["Email"] = np.nan
-        df_lead["Notes"] = ""
-        df_lead["website_url"] = df_lead["Entreprise"].apply(lambda x: self.add_web_site_url(x))
         df_lead.sort_values(
             by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True  # noqa: E501
         )

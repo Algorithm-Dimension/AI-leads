@@ -1,8 +1,8 @@
 import logging
+from typing import List
+import numpy as np
 from ai_leads.model.navigator import WebpageScraper
 from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
-
-from typing import List
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -58,4 +58,5 @@ class LinkedInContactRetriever:
         query = self.format_query(company)
         url_list = scraper.get_raw_google_links(query)
         url_list = [url for url in url_list if self.check_if_profile(url)]
+        # url_list = url_list + [np.nan] * (2 - len(url_list))
         return url_list
