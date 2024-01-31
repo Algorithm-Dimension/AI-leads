@@ -5,6 +5,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 from langchain.output_parsers import StructuredOutputParser
+
 from ai_leads import utils
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper

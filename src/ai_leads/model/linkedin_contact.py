@@ -1,8 +1,8 @@
 import logging
 from typing import List
-import numpy as np
-from ai_leads.model.navigator import WebpageScraper
+
 from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
+from ai_leads.model.navigator import WebpageScraper
 
 # Setup logging
 logger = logging.getLogger(__name__)

@@ -1,9 +1,11 @@
 import logging
 import time
+from typing import List
+from urllib.parse import quote
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from urllib.parse import quote
-from typing import List
+
 from ai_leads.Config.param import WAIT_TIME
 
 # Setup logging

@@ -1,9 +1,11 @@
 import logging
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
+from ai_leads import utils
 from ai_leads.Config.param import COMPANY_FILE_PATH, CONTACT_FILE_PATH, CompanyActivity
 from ai_leads.model.linkedin_contact import LinkedInContactRetriever
-from ai_leads import utils
 
 # Configuration de la journalisation
 logging.basicConfig(level=logging.INFO)

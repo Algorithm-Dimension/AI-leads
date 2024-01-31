@@ -1,7 +1,9 @@
 import logging
+
 import streamlit as st
-from ai_leads.model import lead_dataset_creation, job_dataset_creation
-from ai_leads.Config.param import TIME_WINDOW, SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION
+
+from ai_leads.Config.param import JOB_LIST_PIPELINE, LOCATION, SOURCE_LIST_PIPELINE, TIME_WINDOW
+from ai_leads.model import job_dataset_creation, lead_dataset_creation
 
 # Configuration de logging
 logging.basicConfig(level=logging.INFO)

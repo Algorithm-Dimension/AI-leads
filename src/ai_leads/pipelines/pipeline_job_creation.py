@@ -1,8 +1,10 @@
 import logging
+
 import pandas as pd
-from ai_leads.Config.param import SOURCE_LIST_PIPELINE, JOB_LIST_PIPELINE, LOCATION, JOB_FILE_PATH
-from ai_leads.model.navigator import WebpageScraper
+
+from ai_leads.Config.param import JOB_FILE_PATH, JOB_LIST_PIPELINE, LOCATION, SOURCE_LIST_PIPELINE
 from ai_leads.model.job_dataset_creation import JobDataFrameCreator
+from ai_leads.model.navigator import WebpageScraper
 
 # Setup logging
 logger = logging.getLogger(__name__)

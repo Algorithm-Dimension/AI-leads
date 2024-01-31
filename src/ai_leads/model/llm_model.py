@@ -1,9 +1,10 @@
 import logging
-from langchain.prompts import PromptTemplate
+
+import tiktoken
+from dotenv import load_dotenv
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from dotenv import load_dotenv
-import tiktoken
+from langchain.prompts import PromptTemplate
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

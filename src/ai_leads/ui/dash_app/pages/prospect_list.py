@@ -3,14 +3,14 @@ import os
 import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
-from dash import html, dcc
-from dash.dependencies import Input, Output, State, ALL
+from dash import dcc, html
+from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 from unidecode import unidecode
+
+from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import search_bar, update_button
-from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
-
 
 # Data
 DATA_PATH = "data/"

@@ -1,18 +1,17 @@
 import logging
-import numpy as np
-import pandas as pd
-import dateparser
 from datetime import datetime
+
+import dateparser
+import pandas as pd
+
+from ai_leads import utils
 from ai_leads.Config.param import (
     CompanyActivity,
-    template_verif,
-    output_parser_verif,
-    template_find_activity,
     enum_parser_activity,
+    template_find_activity,
 )
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper
-from ai_leads import utils
 
 # Setup logging
 logger = logging.getLogger(__name__)

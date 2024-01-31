@@ -6,8 +6,7 @@ from dash.dependencies import Input, Output
 import ai_leads.ui.dash_app.utils as utils
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import navbar
-from ai_leads.ui.dash_app.pages import prospect_list
-from ai_leads.ui.dash_app.pages import prospect_detail
+from ai_leads.ui.dash_app.pages import prospect_detail, prospect_list
 
 nav = navbar.navbar
 

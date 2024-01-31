@@ -6,11 +6,12 @@ from typing import List
 import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
-from dash import html, dcc, no_update
+from dash import dcc, html, no_update
 from dash.dependencies import Input, Output, State
+
+from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components.header import header_prospect_detail
-from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
 
 df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";")[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]

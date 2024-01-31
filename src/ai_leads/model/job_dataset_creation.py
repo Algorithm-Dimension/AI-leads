@@ -1,17 +1,18 @@
 import logging
-import pandas as pd
-from typing import Dict
-from io import StringIO
-from ai_leads.model.llm_model import LLMManager
-import ai_leads.utils as utils
-from ai_leads.Config.param import TEMPLATE, OUTPUT_PARSER, BASE_DATE, DATA_IDF_CITY_PATH
-from ai_leads.model.navigator import WebpageScraper
-from langchain.output_parsers import StructuredOutputParser
-import dateparser
-from datetime import datetime
-from unidecode import unidecode
-import os
 import re
+from datetime import datetime
+from io import StringIO
+from typing import Dict
+
+import dateparser
+import pandas as pd
+from langchain.output_parsers import StructuredOutputParser
+from unidecode import unidecode
+
+import ai_leads.utils as utils
+from ai_leads.Config.param import BASE_DATE, DATA_IDF_CITY_PATH, OUTPUT_PARSER, TEMPLATE
+from ai_leads.model.llm_model import LLMManager
+from ai_leads.model.navigator import WebpageScraper
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

@@ -1,9 +1,10 @@
-import pandas as pd
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 import os
 from datetime import datetime
-from langchain.output_parsers.enum import EnumOutputParser
 from enum import Enum
+
+import pandas as pd
+from langchain.output_parsers import ResponseSchema, StructuredOutputParser
+from langchain.output_parsers.enum import EnumOutputParser
 
 BASE_DATE = datetime.today()
 BASE_DATE = datetime(2023, 12, 4)

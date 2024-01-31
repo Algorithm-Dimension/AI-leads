@@ -1,8 +1,10 @@
 import logging
+
 import pandas as pd
-from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
-from ai_leads.Config.param import LEAD_FILE_PATH, JOB_FILE_PATH, COMPANY_FILE_PATH, CompanyActivity
+
 from ai_leads import utils
+from ai_leads.Config.param import COMPANY_FILE_PATH, JOB_FILE_PATH, LEAD_FILE_PATH, CompanyActivity
+from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
