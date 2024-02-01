@@ -5,11 +5,7 @@ import dateparser
 import pandas as pd
 
 from ai_leads import utils
-from ai_leads.Config.param import (
-    CompanyActivity,
-    enum_parser_activity,
-    template_find_activity,
-)
+from ai_leads.Config.param import CompanyActivity, enum_parser_activity, template_find_activity
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper
 
