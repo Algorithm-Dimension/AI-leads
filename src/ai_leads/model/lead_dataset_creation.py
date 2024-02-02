@@ -142,6 +142,8 @@ class LeadDataFrameConverter:
             return CompanyActivity.RECRUITING.value
         elif CompanyActivity.FORMATION_ECOLE.value in activity_list:
             return CompanyActivity.FORMATION_ECOLE.value
+        elif len(activity_list) == 0:
+            return CompanyActivity.OTHER.value
         else:
             return activity_list[0]
 

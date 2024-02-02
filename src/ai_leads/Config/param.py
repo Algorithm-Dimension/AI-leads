@@ -74,7 +74,7 @@ JOB_LIST_PIPELINE = [
 ]
 
 JOB_LIST_PIPELINE = ["Acheteur"]
-SOURCE_LIST_PIPELINE = ["Cadre Emploi"]
+SOURCE_LIST_PIPELINE = ["Cadre Emploi", "Indeed"]
 
 LOCATION = "Paris"
 
