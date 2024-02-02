@@ -42,7 +42,24 @@ def add_linkedin_contacts(df: pd.DataFrame) -> pd.DataFrame:
     df[["linkedin_url_1", "linkedin_url_2"]] = (
         df["company"].apply(LinkedInContactRetriever().find_relevant_profiles).apply(pd.Series)
     )
-    return df[["company", "linkedin_url_1", "linkedin_url_2"]]
+    df[["firstName1", "lastName1"]] = (
+        df["linkedin_url_1"].apply(LinkedInContactRetriever().find_name_from_linkedin_url).apply(pd.Series)
+    )
+
+    df[["firstName2", "lastName2"]] = (
+        df["linkedin_url_2"].apply(LinkedInContactRetriever().find_name_from_linkedin_url).apply(pd.Series)
+    )
+    return df[
+        [
+            "company",
+            "firstName1",
+            "lastName1",
+            "linkedin_url_1",
+            "firstName2",
+            "lastName2",
+            "linkedin_url_2",
+        ]  # noqa: E501
+    ]
 
 
 def main():

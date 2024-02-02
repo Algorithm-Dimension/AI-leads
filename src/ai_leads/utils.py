@@ -20,6 +20,5 @@ def clean_str_unidecode(string: str) -> str:
 
 
 def clean_str_classic(string: str) -> str:
-    # Utiliser une expression régulière pour garder seulement les lettres de l'alphabet
     clean_string = string.strip().lower().title()
     return clean_string

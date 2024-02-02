@@ -278,6 +278,12 @@ class WebpageScraper:
             try:
                 html_content = self.fetch_html(url)
                 soup = BeautifulSoup(html_content, "html.parser")
+                if self.check_if_blocked_by_captcha(soup.prettify()):
+                    print("OKOKOKOK")
+                    time.sleep(WAIT_TIME)
+                    html_content = self.fetch_html(url)
+                    soup = BeautifulSoup(html_content, "html.parser")
+                print("FALSEFALSEFALSE")
                 search_results = soup.find_all("div", class_="yuRUbf")
                 for result in search_results:
                     link = result.a.get("href")
@@ -286,3 +292,17 @@ class WebpageScraper:
             except Exception as err:
                 logger.info("An error occured %s", err)
         return links[:num_results]
+
+    @staticmethod
+    def check_if_blocked_by_captcha(html_output: str) -> bool:
+        """
+        Function to detect if we have been blocked by a captcha
+        Args:
+        - html_output: str
+
+        Returns:
+        - bool: True or False
+        """
+        if "CAPTCHA" in html_output:
+            return True
+        False

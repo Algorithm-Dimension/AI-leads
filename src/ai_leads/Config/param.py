@@ -7,14 +7,14 @@ from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.output_parsers.enum import EnumOutputParser
 
 BASE_DATE = datetime.today()
-BASE_DATE = datetime(2023, 12, 4)
+# BASE_DATE = datetime(2023, 12, 4)
 TEMPLATE = """
             You are analyzing the text extracted from a website with job positions : {url}.
             Using this information, give a chart with ALL the:
             - job name
             - company
             - location
-            - offer date (ex. 10 days ago, 2 months ago, today, aujourd'hui, il y a 2 jours, …)
+            - time indication (publication or last modification. e.g. il y a 2 jours,  aujourd'hui, il y a 1 semaine, 2 days ago …): 
             - contact (an email address or a phone number)
             Write N.A. when the information is not available.
             Exclude the companies that are recruitment companies
@@ -83,8 +83,8 @@ DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
-LEAD_FILE_PATH = os.path.join("data", "leads_tests_tests_31_jan.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_22_jan.csv")
+LEAD_FILE_PATH = os.path.join("data", "leads_tests_tests_2_feb.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_tests_2_feb.csv")
 COMPANY_FILE_PATH = os.path.join("data", "table_companies_test.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 

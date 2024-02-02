@@ -21,8 +21,10 @@ def read_csv_file(file_path, sep=";", dtype=str):
         raise
 
 
-def find_new_companies(df_jobs, df_companies):
+def find_new_companies(df_jobs: pd.DataFrame, df_companies: pd.DataFrame) -> pd.DataFrame:
     """Identifier les nouvelles entreprises non présentes dans df_companies."""
+    df_jobs["company_unidecode"] = df_jobs["company"].apply(utils.clean_str_unidecode)  # noqa: E501
+    df_jobs.drop_duplicates(subset="company_unidecode", keep="first", inplace=True)
     company_list = list(df_jobs["company"].unique())
     existing_companies = set(df_companies["company"].apply(utils.clean_str_unidecode))
     new_companies = [

@@ -89,12 +89,13 @@ class JobDataFrameCreator(LLMManager):
         html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
         try:
-            df = pd.read_csv(StringIO(response), sep=";")
+            df = pd.read_csv(StringIO(response), sep=";", on_bad_lines="skip")
             df.columns = [col.strip() for col in df.columns]
             logger.info("We just keep idf cities")
             df = df.loc[df["location"].apply(lambda x: self.is_in_ile_de_france(x))]
             logger.info("We process date")
-            df["offer date"] = df["offer date"].apply(lambda x: self.convert_to_date(x))
+            df["offer date"] = df["time indication"].apply(lambda x: self.convert_to_date(x))
+            df.drop(columns=["time indication"], inplace=True)
         except Exception as error:
             logger.info("An error occured: %s", error)
             logger.info("LLM Response is: %s", response)
@@ -149,7 +150,6 @@ class JobDataFrameCreator(LLMManager):
             delta = today - parsed_date
             date_of_position = BASE_DATE - delta
             date_of_position_str = date_of_position.strftime("%d-%m-%Y")
-            print(date_of_position_str)
             return date_of_position_str
         except Exception as error:
             logger.info("Failed to parse date from string %s %s", temp_string, error)
