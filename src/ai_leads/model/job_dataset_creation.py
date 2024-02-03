@@ -145,6 +145,11 @@ class JobDataFrameCreator(LLMManager):
             int: Number of days since the date represented by temp_string.
         """
         try:
+            temp_string = temp_string.lower()
+            if "moins de" in temp_string.lower():
+                temp_string = temp_string.replace("moins de ", "")
+            elif "plus de" in temp_string.lower():
+                temp_string = temp_string.replace("plus de ", "")
             parsed_date = dateparser.parse(temp_string, languages=["fr", "en"])
             today = datetime.now()
             delta = today - parsed_date
