@@ -19,10 +19,7 @@ def scrape_jobs_and_save_to_csv():
         for job in JOB_LIST_PIPELINE:
             logger.info(f"Scraping {job} jobs from {platform}")
             df_jobs = scrape_jobs_from_platform(platform, job, df_jobs)
-
-    # Save the final DataFrame to a CSV after collecting all jobs to reduce disk I/O
-    df_jobs.to_csv(JOB_FILE_PATH, sep=";", index=False)
-    logger.info("All job data saved to CSV.")
+    logger.info("Job data saved to CSV.")
 
 
 def scrape_jobs_from_platform(platform, job, df_jobs):
@@ -34,6 +31,9 @@ def scrape_jobs_from_platform(platform, job, df_jobs):
         df_job = JobDataFrameCreator().create_table_with_job(url, platform)
         df_job = enrich_job_data(df_job, job, platform, url)
         df_jobs = pd.concat([df_jobs, df_job])
+        # Save the final DataFrame to a CSV after collecting all jobs to reduce disk I/O
+    df_jobs.to_csv(JOB_FILE_PATH, sep=";", index=False)
+    logger.info("Job data saved to CSV.")
 
     return df_jobs
 
