@@ -60,8 +60,6 @@ class WebpageScraper:
                     self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
                 html_content = driver.page_source
                 if self.check_if_blocked_by_captcha(html_content):
-                    self.solve_recaptcha_v2(driver)
-                    driver.implicitly_wait(WAIT_TIME)
                     html_content = driver.page_source
                 return html_content
             except Exception as error:
@@ -283,12 +281,6 @@ class WebpageScraper:
             try:
                 html_content = self.fetch_html(url)
                 soup = BeautifulSoup(html_content, "html.parser")
-                if self.check_if_blocked_by_captcha(soup.prettify()):
-                    print("OKOKOKOK")
-                    time.sleep(WAIT_TIME)
-                    html_content = self.fetch_html(url)
-                    soup = BeautifulSoup(html_content, "html.parser")
-                print("FALSEFALSEFALSE")
                 search_results = soup.find_all("div", class_="yuRUbf")
                 for result in search_results:
                     link = result.a.get("href")
@@ -309,6 +301,7 @@ class WebpageScraper:
         - bool: True or False
         """
         if "CAPTCHA" in html_output:
+            logger.info("Blocked by Captcha")
             return True
         False
 
@@ -323,6 +316,5 @@ class WebpageScraper:
             log=1,  # If you want to view the progress.
         )
         solver.solve_recaptcha()
-        driver.implicitly_wait(15)
 
         return

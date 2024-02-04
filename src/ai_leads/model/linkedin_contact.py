@@ -3,6 +3,8 @@ import re
 from typing import List
 import urllib.parse
 
+import numpy as np
+
 from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper
@@ -62,7 +64,8 @@ class LinkedInContactRetriever:
         query = self.format_query(company)
         url_list = scraper.get_raw_google_links(query)
         url_list = [url for url in url_list if self.check_if_profile(url)]
-        # url_list = url_list + [np.nan] * (2 - len(url_list))
+        url_list = url_list + [np.nan] * (2 - len(url_list))
+        logger.info("Here is the urls: %s", url_list)
         return url_list
 
     @staticmethod

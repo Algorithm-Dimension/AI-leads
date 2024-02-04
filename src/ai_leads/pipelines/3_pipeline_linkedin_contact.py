@@ -1,4 +1,5 @@
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -35,13 +36,10 @@ def clean_and_filter_data(df_company: pd.DataFrame, df_contact: pd.DataFrame) ->
     return df_company
 
 
-def add_linkedin_contacts(df: pd.DataFrame) -> pd.DataFrame:
+def add_linkedin_names(df: pd.DataFrame) -> pd.DataFrame:
     """
     Ajoute les contacts LinkedIn aux entreprises.
     """
-    df[["linkedin_url_1", "linkedin_url_2"]] = (
-        df["company"].apply(LinkedInContactRetriever().find_relevant_profiles).apply(pd.Series)
-    )
     df[["firstName1", "lastName1"]] = (
         df["linkedin_url_1"].apply(LinkedInContactRetriever().find_name_from_linkedin_url).apply(pd.Series)
     )
@@ -49,34 +47,55 @@ def add_linkedin_contacts(df: pd.DataFrame) -> pd.DataFrame:
     df[["firstName2", "lastName2"]] = (
         df["linkedin_url_2"].apply(LinkedInContactRetriever().find_name_from_linkedin_url).apply(pd.Series)
     )
-    return df[
-        [
-            "company",
-            "firstName1",
-            "lastName1",
-            "linkedin_url_1",
-            "firstName2",
-            "lastName2",
-            "linkedin_url_2",
-        ]  # noqa: E501
-    ]
+
+
+def add_linkedin_contacts_and_save(df_company: pd.DataFrame):
+    """
+    Ajoute les contacts LinkedIn aux entreprises et sauvegarde chaque nouvelle ligne directement dans le fichier existant.
+    """
+    df_contact = read_data(CONTACT_FILE_PATH)
+
+    for _, row in df_company.iterrows():
+        linkedin_data = LinkedInContactRetriever().find_relevant_profiles(row["company"])
+        # Supposons que linkedin_data est une liste de profils; ajustez selon votre implémentation
+        # Ajout des données LinkedIn (exemple simplifié)
+        if linkedin_data:
+            row["linkedin_url_1"] = linkedin_data[0]
+            row["firstName1"], row["lastName1"] = LinkedInContactRetriever().find_name_from_linkedin_url(
+                linkedin_data[0]
+            )
+            row["linkedin_url_2"] = linkedin_data[1]
+            row["firstName2"], row["lastName2"] = LinkedInContactRetriever().find_name_from_linkedin_url(
+                linkedin_data[1]
+            )
+            # Convertir la ligne en DataFrame pour écrire dans le fichier
+            df_row = pd.DataFrame([row])
+            df_row = df_row[
+                [
+                    "company",
+                    "firstName1",
+                    "lastName1",
+                    "linkedin_url_1",
+                    "firstName2",
+                    "lastName2",
+                    "linkedin_url_2",
+                ]
+            ]
+            df_contact = pd.concat([df_contact, df_row], ignore_index=True)
+            print("OKOKOK")
+            df_contact.to_csv(CONTACT_FILE_PATH, sep=";", index=False)
+            # Marquer le fichier comme existant pour les futures itérations
+        else:
+            logger.info(f"Aucun contact LinkedIn trouvé pour l'entreprise {row['company']}.")
 
 
 def main():
     df_company_list = read_data(COMPANY_FILE_PATH)
     df_contact = read_data(CONTACT_FILE_PATH)
-
     df_company_list = clean_and_filter_data(df_company_list, df_contact)
-    df_company_list = add_linkedin_contacts(df_company_list)
+    add_linkedin_contacts_and_save(df_company_list)
 
-    df_contact = pd.concat([df_contact, df_company_list], ignore_index=True)
-    df_contact.fillna(np.nan, inplace=True)
-
-    try:
-        df_contact.to_csv(CONTACT_FILE_PATH, sep=";", index=False)
-        logger.info("Fichier de contacts sauvegardé avec succès.")
-    except Exception as e:
-        logger.error(f"Erreur de sauvegarde du fichier de contacts: {e}")
+    logger.info("Tous les contacts LinkedIn ont été ajoutés et sauvegardés avec succès.")
 
 
 if __name__ == "__main__":
