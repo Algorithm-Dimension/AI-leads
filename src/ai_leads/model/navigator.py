@@ -5,6 +5,7 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium_recaptcha import Recaptcha_Solver
 
 from ai_leads.Config.param import WAIT_TIME
 
@@ -58,6 +59,10 @@ class WebpageScraper:
                 if self.dynamic:
                     self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
                 html_content = driver.page_source
+                if self.check_if_blocked_by_captcha(html_content):
+                    self.solve_recaptcha_v2(driver)
+                    driver.implicitly_wait(WAIT_TIME)
+                    html_content = driver.page_source
                 return html_content
             except Exception as error:
                 logger.info("An error occured: %s", error)
@@ -127,7 +132,7 @@ class WebpageScraper:
         Returns:
         - str: URL with job offer
         """
-        return [f"https://www.linkedin.com/jobs/{position}-jobs-{location}/"]
+        return [f"https://www.linkedin.fr/jobs/{position}-jobs-{location}/"]
 
     @staticmethod
     def _indeed_url(position: str, location: str, number_pages=5) -> List[str]:
@@ -306,3 +311,18 @@ class WebpageScraper:
         if "CAPTCHA" in html_output:
             return True
         False
+
+    def solve_recaptcha_v2(self, driver: webdriver.Chrome) -> None:
+        """
+        Solve recaptcha_V2
+        """
+
+        solver = Recaptcha_Solver(
+            driver=driver,  # Your Web Driver
+            ffmpeg_path="",  # Optional. If does not exists, it will automatically download.
+            log=1,  # If you want to view the progress.
+        )
+        solver.solve_recaptcha()
+        driver.implicitly_wait(15)
+
+        return

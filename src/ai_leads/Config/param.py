@@ -74,7 +74,7 @@ JOB_LIST_PIPELINE = [
 ]
 
 # JOB_LIST_PIPELINE = ["Acheteur"]
-# SOURCE_LIST_PIPELINE = ["Cadre Emploi", "Indeed"]
+SOURCE_LIST_PIPELINE = ["LinkedIn", "Indeed", "Welcome to the Jungle"]
 
 LOCATION = "Paris"
 
@@ -84,8 +84,8 @@ DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
 LEAD_FILE_PATH = os.path.join("data", "leads_tests_tests_3_feb.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_3_feb.csv")
-COMPANY_FILE_PATH = os.path.join("data", "table_companies_test.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_tests_3_feb_part_2.csv")
+COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 
 

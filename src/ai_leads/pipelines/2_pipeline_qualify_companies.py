@@ -70,6 +70,7 @@ def process_company_updates():
     df_companies = fill_missing_values(
         df_companies, "activity_sector", LeadDataFrameConverter().determine_activity_sector
     )
+    save_df_to_csv(df_companies, COMPANY_FILE_PATH)
 
     df_companies = fill_missing_values(df_companies, "website_url", LeadDataFrameConverter().add_web_site_url)
 
