@@ -5,7 +5,8 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium_recaptcha import Recaptcha_Solver
+
+# from selenium_recaptcha import Recaptcha_Solver
 
 from ai_leads.Config.param import WAIT_TIME
 
@@ -334,16 +335,17 @@ class WebpageScraper:
             return True
         False
 
-    def solve_recaptcha_v2(self, driver: webdriver.Chrome) -> None:
-        """
-        Solve recaptcha_V2
-        """
 
-        solver = Recaptcha_Solver(
-            driver=driver,  # Your Web Driver
-            ffmpeg_path="",  # Optional. If does not exists, it will automatically download.
-            log=1,  # If you want to view the progress.
-        )
-        solver.solve_recaptcha()
-
-        return
+#    def solve_recaptcha_v2(self, driver: webdriver.Chrome) -> None:
+#        """
+#        Solve recaptcha_V2
+#        """
+#
+#        solver = Recaptcha_Solver(
+#            driver=driver,  # Your Web Driver
+#            ffmpeg_path="",  # Optional. If does not exists, it will automatically download.
+#            log=1,  # If you want to view the progress.
+#        )
+#        solver.solve_recaptcha()#
+#
+#        return
