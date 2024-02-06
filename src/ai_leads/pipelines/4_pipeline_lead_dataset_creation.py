@@ -22,6 +22,7 @@ def read_csv_file(file_path, sep=";"):
 
 def convert_jobs_to_leads(df_jobs, time_window):
     """Convertir les données des offres d'emploi en prospects."""
+    df_jobs.drop_duplicates(subset=["job name", "company", "location", "offer date", "source"], inplace=True)
     dfConverter = LeadDataFrameConverter(df_jobs)
     return dfConverter.convert_to_lead_dataframe(time_window=time_window)
 

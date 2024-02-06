@@ -14,7 +14,7 @@ from ai_leads.ui.dash_app.components import search_bar, update_button
 
 # Data
 DATA_PATH = "data/"
-df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=",")
+df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
@@ -48,7 +48,7 @@ def update_dataframe(n_clicks, checkbox_states):
         ] = ("Oui" if state else "Non")
 
     # Save the updated DataFrame
-    df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=",", index=False)
+    df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=";", index=False)
 
     return
 
@@ -68,7 +68,7 @@ def update_prospect_list(
     n_clicks_search_button=0,
     n_submit_search_input=0,
 ):
-    df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=",")
+    df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
     # Get unique food providers
     unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
     # Create a Dropdown component for selecting food providers
