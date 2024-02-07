@@ -21,17 +21,18 @@ class LeadDataFrameConverter:
         df (pd.DataFrame): The input dataframe.
     """
 
-    def __init__(self, df: pd.DataFrame = pd.DataFrame()):
+    def __init__(self, df: pd.DataFrame = pd.DataFrame(), scraper: WebpageScraper = WebpageScraper()):  # noqa
         """
         Initializes the LeadDataFrameConverter with a dataframe.
 
         Args:
             df (pd.DataFrame): The input dataframe.
+            scraper (WebpageScraper): the scrapper instance to use
         """
         self.df = df.copy()
         self.df.columns = [col.strip() for col in self.df.columns]
         self.llm_manager = LLMManager()
-        self.scraper = WebpageScraper()
+        self.scraper = scraper
 
     def convert_time_column(self, col: str):
         """

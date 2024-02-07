@@ -6,10 +6,13 @@ import pandas as pd
 from ai_leads import utils
 from ai_leads.Config.param import COMPANY_FILE_PATH, JOB_FILE_PATH
 from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
+from ai_leads.model.navigator import WebpageScraper
 
 # Configuration de la journalisation
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+scraper = WebpageScraper()
 
 
 def read_csv_file(file_path, sep=";", dtype=str):
@@ -66,9 +69,8 @@ def process_company_updates():
 
     new_companies_df = find_new_companies(df_jobs, df_companies)
     df_companies = update_companies_with_new_entries(df_companies, new_companies_df)
-
     df_companies = fill_missing_values(
-        df_companies, "activity_sector", LeadDataFrameConverter().determine_activity_sector
+        df_companies, "activity_sector", LeadDataFrameConverter(scraper=scraper).determine_activity_sector
     )
     save_df_to_csv(df_companies, COMPANY_FILE_PATH)
 
@@ -80,5 +82,7 @@ def process_company_updates():
 if __name__ == "__main__":
     try:
         process_company_updates()
+        scraper.close_driver()
+
     except Exception as e:
         logger.error(f"Une erreur est survenue lors de la mise à jour des données des entreprises: {e}")

@@ -1,4 +1,5 @@
 import logging
+import random
 import time
 from typing import List
 from urllib.parse import quote
@@ -6,9 +7,10 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
+from ai_leads.Config.param import WAIT_TIME, SPORT_WEBSITE_LIST, N_PROBA
+
 # from selenium_recaptcha import Recaptcha_Solver
 
-from ai_leads.Config.param import WAIT_TIME
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -25,6 +27,31 @@ class WebpageScraper:
         self.logger = logger
         self.platform = platform
         self.dynamic = self.__init__dynamic(platform)
+        self.driver = webdriver.Chrome(options=self.options)  # Initialisation du WebDriver ici
+        self.random_action()
+
+    @staticmethod
+    def random_waiting_time(waiting_time: int = WAIT_TIME):
+        """Pause l'exécution pour un temps aléatoire entre 1 et 5 secondes."""
+        wait_time = random.randint(1, waiting_time)  # noqa: Génère un temps d'attente aléatoire entre 1 et 5
+        time.sleep(wait_time)  # Pause l'exécution pour le temps généré
+
+    def random_action(self):
+        """Va sur un site au hasard"""
+        driver = self.driver
+        try:
+            url = random.choice(SPORT_WEBSITE_LIST)
+            driver.get(url)
+            self.random_waiting_time()
+        except Exception:
+            return
+
+    def random_stochastic_action(self, n_proba: int = N_PROBA):
+        """Vas sur un site au hasard avec la probabilité 1/n_proba lorsque
+        que la fonction fetch_html est appelée"""
+        random_number = random.randint(1, n_proba)
+        if random_number == 1:
+            self.random_action()
 
     @staticmethod
     def __init__dynamic(platform: str) -> bool:
@@ -43,6 +70,10 @@ class WebpageScraper:
             return False
         return False
 
+    def close_driver(self):
+        """Ferme le WebDriver explicitement."""
+        self.driver.quit()
+
     def fetch_html(self, url: str) -> str:
         """
         Get the HTML source of a webpage using Selenium.
@@ -53,48 +84,21 @@ class WebpageScraper:
         Returns:
         - str: HTML source of the webpage.
         """
-        user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Safari/605.1.15",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
-            "Mozilla/5.0 (iPad; CPU OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-            "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
-            "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.96 Mobile Safari/537.36",
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-            "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36",
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
-            "Mozilla/5.0 (iPad; CPU OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
-            "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0",
-            "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36",
-        ]
-        import random
-
-        user_agent = random.choice(user_agents)
-
-        self.options.add_argument(f"user-agent={user_agent}")
-
-        with webdriver.Chrome(options=self.options) as driver:
-            try:
-                driver.get(url)
-                driver.implicitly_wait(WAIT_TIME)
-                if self.dynamic:
-                    self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
+        driver = self.driver
+        try:
+            self.random_stochastic_action()
+            driver.get(url)
+            driver.implicitly_wait(WAIT_TIME)
+            if self.dynamic:
+                self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
+            html_content = driver.page_source
+            if self.check_if_blocked_by_captcha(html_content):
+                input("ENTER OK WHEN YOU SOLVED THE CAPTCHA")
                 html_content = driver.page_source
-                if self.check_if_blocked_by_captcha(html_content):
-                    html_content = driver.page_source
-                return html_content
-            except Exception as error:
-                logger.info("An error occured: %s", error)
-        # curl_command = f"curl {url}"
-        # html_content = os.popen(curl_command).read()
+            self.random_waiting_time()
+            return html_content
+        except Exception as error:
+            logger.info("An error occured: %s", error)
         return html_content
 
     @staticmethod

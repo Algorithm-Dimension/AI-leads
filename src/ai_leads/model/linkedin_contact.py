@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 class LinkedInContactRetriever:
     """A utility class to find linkedIn contact relevant"""
 
-    def __init__(self):
-        self.scraper = WebpageScraper()
+    def __init__(self, scraper: WebpageScraper = WebpageScraper()):
+        self.scraper = scraper
         self.llm_manager = LLMManager()
         self.lead_converter = LeadDataFrameConverter()
 

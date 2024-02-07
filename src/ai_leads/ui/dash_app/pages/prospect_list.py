@@ -8,10 +8,11 @@ from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 from unidecode import unidecode
 
-from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
+from ai_leads.Config.param import LEAD_FILE_PATH, LAST_UPDATE
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import search_bar, update_button
 
+BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
 # Data
 DATA_PATH = "data/"
 df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
@@ -184,7 +185,7 @@ def update_prospect_list(
                                     "align-items": "center",
                                 },
                             ),
-                            html.P("Denière mise à jour: 13/11/2023", style={"margin": "0"}),
+                            html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
                             html.P(f"À : Paris", style={"margin": "0"}),
                             html.P(
                                 f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}

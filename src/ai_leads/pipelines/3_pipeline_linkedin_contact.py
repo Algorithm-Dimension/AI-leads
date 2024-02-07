@@ -7,10 +7,13 @@ import pandas as pd
 from ai_leads import utils
 from ai_leads.Config.param import COMPANY_FILE_PATH, CONTACT_FILE_PATH, CompanyActivity
 from ai_leads.model.linkedin_contact import LinkedInContactRetriever
+from ai_leads.model.navigator import WebpageScraper
 
 # Configuration de la journalisation
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+scraper = WebpageScraper()
 
 
 def read_data(file_path: str) -> pd.DataFrame:
@@ -41,11 +44,15 @@ def add_linkedin_names(df: pd.DataFrame) -> pd.DataFrame:
     Ajoute les contacts LinkedIn aux entreprises.
     """
     df[["firstName1", "lastName1"]] = (
-        df["linkedin_url_1"].apply(LinkedInContactRetriever().find_name_from_linkedin_url).apply(pd.Series)
+        df["linkedin_url_1"]
+        .apply(LinkedInContactRetriever(scraper=scraper).find_name_from_linkedin_url)
+        .apply(pd.Series)
     )
 
     df[["firstName2", "lastName2"]] = (
-        df["linkedin_url_2"].apply(LinkedInContactRetriever().find_name_from_linkedin_url).apply(pd.Series)
+        df["linkedin_url_2"]
+        .apply(LinkedInContactRetriever(scraper=scraper).find_name_from_linkedin_url)
+        .apply(pd.Series)
     )
 
 
@@ -56,16 +63,16 @@ def add_linkedin_contacts_and_save(df_company: pd.DataFrame):
     df_contact = read_data(CONTACT_FILE_PATH)
 
     for _, row in df_company.iterrows():
-        linkedin_data = LinkedInContactRetriever().find_relevant_profiles(row["company"])
+        linkedin_data = LinkedInContactRetriever(scraper=scraper).find_relevant_profiles(row["company"])
         # Supposons que linkedin_data est une liste de profils; ajustez selon votre implémentation
         # Ajout des données LinkedIn (exemple simplifié)
         if linkedin_data:
             row["linkedin_url_1"] = linkedin_data[0]
-            row["firstName1"], row["lastName1"] = LinkedInContactRetriever().find_name_from_linkedin_url(
+            row["firstName1"], row["lastName1"] = LinkedInContactRetriever(scraper=scraper).find_name_from_linkedin_url(
                 linkedin_data[0]
             )
             row["linkedin_url_2"] = linkedin_data[1]
-            row["firstName2"], row["lastName2"] = LinkedInContactRetriever().find_name_from_linkedin_url(
+            row["firstName2"], row["lastName2"] = LinkedInContactRetriever(scraper=scraper).find_name_from_linkedin_url(
                 linkedin_data[1]
             )
             # Convertir la ligne en DataFrame pour écrire dans le fichier
@@ -96,6 +103,7 @@ def main():
     add_linkedin_contacts_and_save(df_company_list)
 
     logger.info("Tous les contacts LinkedIn ont été ajoutés et sauvegardés avec succès.")
+    scraper.close_driver()
 
 
 if __name__ == "__main__":

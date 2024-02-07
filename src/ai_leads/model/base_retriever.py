@@ -26,10 +26,11 @@ class BaseInformationRetrieverLLM(ABC):
         self,
         template: str,
         output_parser: StructuredOutputParser,
-        num_results=3,
+        scraper: WebpageScraper = WebpageScraper(),
+        num_results: int = 3,
         logger: logging.Logger = local_logger,
     ):
-        self.scraper = WebpageScraper()
+        self.scraper = scraper
         self.llm_manager = LLMManager()
         self.logger = logger
         self.template = template

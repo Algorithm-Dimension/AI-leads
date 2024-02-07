@@ -6,6 +6,7 @@ import pandas as pd
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.output_parsers.enum import EnumOutputParser
 
+LAST_UPDATE = datetime(2024, 2, 4)
 BASE_DATE = datetime.today()
 # BASE_DATE = datetime(2023, 12, 4)
 TEMPLATE = """
@@ -74,17 +75,18 @@ JOB_LIST_PIPELINE = [
 ]
 
 # JOB_LIST_PIPELINE = ["Acheteur"]
-SOURCE_LIST_PIPELINE = ["LinkedIn", "Indeed", "Welcome to the Jungle"]
+# SOURCE_LIST_PIPELINE = ["LinkedIn", "Indeed", "Welcome to the Jungle"]
 
 LOCATION = "Paris"
 
 WAIT_TIME = 5
+N_PROBA = 4
 DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
 LEAD_FILE_PATH = os.path.join("data", "leads_tests_tests_3_feb.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_3_feb_part_2.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_tests_3_feb.csv")
 COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 
@@ -102,3 +104,15 @@ template_find_activity = """
     Instructions: {format_instructions}"""
 
 enum_parser_activity = EnumOutputParser(enum=CompanyActivity)
+
+SPORT_WEBSITE_LIST = [
+    "https://www.lequipe.fr",
+    "https://www.eurosport.fr",
+    "https://www.sport.fr",
+    "https://www.sofoot.com",
+    "https://www.goal.com/fr",
+    "https://www.francefootball.fr",
+    "https://www.football.fr",
+    "https://www.intersport.fr",
+    "https://sportsmanor.com",
+]

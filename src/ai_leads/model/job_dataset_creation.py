@@ -27,15 +27,15 @@ class JobDataFrameCreator(LLMManager):
         df (pd.DataFrame): The input dataframe.
     """
 
-    def __init__(self):
+    def __init__(self, scraper: WebpageScraper = WebpageScraper()):
         """
         Initializes the LeadDataFrameConverter with a dataframe.
 
         Args:
-            df (pd.DataFrame): The input dataframe.
+            scraper (WebpageScraper): The scraper instance to use
         """
         super().__init__()
-        self.scraper = WebpageScraper()
+        self.scraper = scraper
         self.llm_manager = LLMManager()
 
     def _find_job_list_url(
