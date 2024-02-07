@@ -6,8 +6,10 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium_recaptcha_solver import RecaptchaSolver
 
-from ai_leads.Config.param import WAIT_TIME, SPORT_WEBSITE_LIST, N_PROBA
+from ai_leads.Config.param import N_PROBA, SPORT_WEBSITE_LIST, WAIT_TIME
 
 # from selenium_recaptcha import Recaptcha_Solver
 
@@ -93,7 +95,7 @@ class WebpageScraper:
                 self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
             html_content = driver.page_source
             if self.check_if_blocked_by_captcha(html_content):
-                input("ENTER OK WHEN YOU SOLVED THE CAPTCHA")
+                self.solve_recaptcha_v2(driver)
                 html_content = driver.page_source
             self.random_waiting_time()
             return html_content
@@ -338,17 +340,24 @@ class WebpageScraper:
             return True
         False
 
+    #    def solve_recaptcha_v2(self, driver: webdriver.Chrome) -> None:
+    #        """
+    #        Solve recaptcha_V2
+    #        """
+    #
+    #        solver = Recaptcha_Solver(
+    #            driver=driver,  # Your Web Driver
+    #            ffmpeg_path="",  # Optional. If does not exists, it will automatically download.
+    #            log=1,  # If you want to view the progress.
+    #        )
+    #        solver.solve_recaptcha()#
+    #
+    #        return
 
-#    def solve_recaptcha_v2(self, driver: webdriver.Chrome) -> None:
-#        """
-#        Solve recaptcha_V2
-#        """
-#
-#        solver = Recaptcha_Solver(
-#            driver=driver,  # Your Web Driver
-#            ffmpeg_path="",  # Optional. If does not exists, it will automatically download.
-#            log=1,  # If you want to view the progress.
-#        )
-#        solver.solve_recaptcha()#
-#
-#        return
+    @staticmethod
+    def solve_recaptcha_v2(driver: webdriver.Chrome):
+        """Solve recaptcha_V2"""
+        solver = RecaptchaSolver(driver=driver)
+        recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
+        solver.click_recaptcha_v2(iframe=recaptcha_iframe)
+        time.sleep(WAIT_TIME)

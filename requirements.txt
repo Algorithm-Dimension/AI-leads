@@ -1,0 +1,2 @@
+selenium-recaptcha-solver==1.9.0
+selenium==4.17.0
