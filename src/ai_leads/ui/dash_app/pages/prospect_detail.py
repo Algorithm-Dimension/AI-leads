@@ -13,7 +13,7 @@ from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components.header import header_prospect_detail
 from ai_leads import utils
-
+from ai_leads.ui.dash_app.utils import sort_df_by_date
 
 df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";", dtype=str)[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
@@ -21,7 +21,6 @@ df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";", dtype=str)[
 df_jobs.replace(["n.a.", "N.A."], np.nan, inplace=True)
 df_jobs["company"] = df_jobs["company"].astype(str)
 df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";", dtype=str)
-# df_final_result_uni["segment"] = "university"
 df_final_result_leads.replace(["n.a.", "N.A."], np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
@@ -74,6 +73,7 @@ def job_list_output(company: str) -> List[dbc.Row]:
     if utils.clean_str_unidecode(company) in list(df_jobs["company"].apply(utils.clean_str_unidecode)):
         rows = df_jobs.loc[df_jobs["company"].apply(utils.clean_str_unidecode) == utils.clean_str_unidecode(company)]
         # Apply the function to create HTML divs for each meal plan
+        rows = sort_df_by_date(rows, "offer date")
         job_divs = rows.apply(_create_job_div, axis=1)
         return job_divs.tolist()
     return []

@@ -134,7 +134,7 @@ class JobDataFrameCreator(LLMManager):
         return False
 
     @staticmethod
-    def convert_to_date(temp_string: str) -> str:
+    def convert_to_date(temp_string: str, base_date: datetime = BASE_DATE) -> str:
         """
         Convert a temporal string into a date in string.
 
@@ -146,16 +146,20 @@ class JobDataFrameCreator(LLMManager):
         """
         try:
             temp_string = temp_string.lower()
-            if "moins de" in temp_string.lower():
-                temp_string = temp_string.replace("moins de ", "")
-            elif "plus de" in temp_string.lower():
-                temp_string = temp_string.replace("plus de ", "")
-            parsed_date = dateparser.parse(temp_string, languages=["fr", "en"])
-            today = datetime.now()
-            delta = today - parsed_date
-            date_of_position = BASE_DATE - delta
-            date_of_position_str = date_of_position.strftime("%d-%m-%Y")
-            return date_of_position_str
+            # On enlève ici tous les mots génants pour convertir en date
+            temp_string = temp_string.replace("moins de ", "")
+            temp_string = temp_string.replace("plus de ", "")
+            temp_string = temp_string.replace("publiée ", "")
+            temp_string = temp_string.replace("publié ", "")
+            temp_string = temp_string.replace("modifiée ", "")
+            temp_string = temp_string.replace("modifié ", "")
+            # On s'occupe de certains cas particuliers:
+            if "instant" in temp_string:
+                return base_date.strftime("%d-%m-%Y")
+            parsed_date = dateparser.parse(
+                temp_string, languages=["fr", "en"], date_formats=["%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y"]  # noqa
+            )
+            return parsed_date.strftime("%d-%m-%Y")
         except Exception as error:
             logger.info("Failed to parse date from string %s %s", temp_string, error)
             return temp_string

@@ -20,3 +20,21 @@ def extract_client_name(path: str) -> str:
         df_final_result_leads["Entreprise"].apply(lambda x: unidecode(x).replace(" ", "")) == unidecoded_company
     ]["Entreprise"].iloc[0]
     return company
+
+
+def sort_df_by_date(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
+    """Function which sort a dataframe by date: from the most to the least recent. string values are the last
+    df: pd.DataFrame
+    date_col: nale of the column with the date
+    """
+    df["offer_date_converted"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    # Crée une colonne temporaire pour identifier les lignes avec des chaînes de caractères
+    df["is_string"] = df["offer_date_converted"].isna()
+
+    # Trie le DataFrame :
+    # 1. Les dates en ordre décroissant.
+    # 2. Les chaînes de caractères (is_string=True) à la fin.
+    df_sorted = df.sort_values(by=["is_string", "offer_date_converted"], ascending=[True, False])
+    # Supprime la colonne 'is_string' et 'offer_date_converted'
+    df_sorted.drop(["is_string", "offer_date_converted"], axis=1, inplace=True)
+    return df_sorted
