@@ -85,7 +85,7 @@ class JobDataFrameCreator(LLMManager):
         df = pd.DataFrame()
         template = TEMPLATE
         output_parser = OUTPUT_PARSER
-        html_raw_code_full = WebpageScraper(platform, headless=False).fetch_readable_text(url)
+        html_raw_code_full = self.scraper.fetch_readable_text(url)
         html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
         try:

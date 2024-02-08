@@ -29,7 +29,7 @@ class WebpageScraper:
         self.logger = logger
         self.platform = platform
         self.dynamic = self.__init__dynamic(platform)
-        self.driver = webdriver.Chrome(options=self.options)  # Initialisation du WebDriver ici
+        self.driver = None
         self.random_action()
 
     @staticmethod
@@ -86,6 +86,8 @@ class WebpageScraper:
         Returns:
         - str: HTML source of the webpage.
         """
+        if self.driver is None:
+            self.driver = webdriver.Chrome(options=self.options)  # Initialisation du WebDriver ici
         driver = self.driver
         try:
             self.random_stochastic_action()
