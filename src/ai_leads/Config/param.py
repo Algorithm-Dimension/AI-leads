@@ -6,6 +6,10 @@ import pandas as pd
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.output_parsers.enum import EnumOutputParser
 
+
+ZEPHYR_URL = "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/blob/main/zephyr-7b-beta.Q5_K_M.gguf"
+ZEPHYR_NAME = "zephyr-7b-beta.Q5_K_M.gguf"
+
 LAST_UPDATE = datetime(2024, 2, 4)
 BASE_DATE = datetime.today()
 # BASE_DATE = datetime(2023, 12, 4)

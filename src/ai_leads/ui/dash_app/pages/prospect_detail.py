@@ -9,7 +9,7 @@ import pandas as pd
 from dash import dcc, html, no_update
 from dash.dependencies import Input, Output, State
 
-from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH
+from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH, CONTACT_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components.header import header_prospect_detail
 from ai_leads import utils
@@ -23,6 +23,8 @@ df_jobs["company"] = df_jobs["company"].astype(str)
 df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";", dtype=str)
 df_final_result_leads.replace(["n.a.", "N.A."], np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
+
+df_table_contact = pd.read_csv(os.path.join(CONTACT_FILE_PATH), sep=";", dtype=str)
 
 
 # La fonction _create_job_div
@@ -77,6 +79,78 @@ def job_list_output(company: str) -> List[dbc.Row]:
         job_divs = rows.apply(_create_job_div, axis=1)
         return job_divs.tolist()
     return []
+
+
+def linkedin_contact_output(company: str):
+    if utils.clean_str_unidecode(company) in list(df_table_contact["company"].apply(utils.clean_str_unidecode)):
+        contacts = df_table_contact.loc[
+            df_table_contact["company"].apply(utils.clean_str_unidecode) == utils.clean_str_unidecode(company)
+        ]
+        contacts_list = []
+        for _, row in contacts.iterrows():
+            if pd.notna(row["linkedin_url_1"]):
+                contacts_list.append(
+                    {
+                        "first_name": row["firstName1"],
+                        "last_name": row["lastName1"],
+                        "linkedin_url": row["linkedin_url_1"],
+                    }
+                )
+            if pd.notna(row["linkedin_url_2"]):
+                contacts_list.append(
+                    {
+                        "first_name": row["firstName2"],
+                        "last_name": row["lastName2"],
+                        "linkedin_url": row["linkedin_url_2"],
+                    }
+                )
+        return contacts_list
+    return []
+
+
+def create_contacts_section(company: str):
+    contacts = linkedin_contact_output(company)
+    if not contacts:
+        return html.P("Aucun contact pertinent trouvé.")
+
+    contacts_elements = []
+    for contact in contacts:
+        # Créer un hyperlien contenant le nom et le logo LinkedIn
+        contact_link = html.A(
+            [
+                f"{contact['first_name']} {contact['last_name']}",  # Nom et prénom
+                html.Img(
+                    src="../assets/LinkedIn_logo_initials.png", style={"height": "1.5rem", "marginLeft": "10px"}
+                ),  # Logo LinkedIn
+            ],
+            href=contact["linkedin_url"],
+            target="_blank",
+            style={"textDecoration": "none", "color": "black", "display": "flex", "alignItems": "center"},
+        )
+
+        contact_element = dbc.Row(
+            [
+                dbc.Col(contact_link),
+            ],
+            className="mb-2",
+        )
+        contacts_elements.append(contact_element)
+
+    return dbc.Card(
+        [
+            dbc.CardHeader("Contacts potentiellement pertinents"),
+            dbc.CardBody(contacts_elements),
+        ],
+        className="mb-3",
+    )
+
+    return dbc.Card(
+        [
+            dbc.CardHeader("Contacts potentiellement pertinents"),
+            dbc.CardBody(contacts_elements),
+        ],
+        className="mb-3",
+    )
 
 
 def job_info(company: str) -> dbc.Row:
@@ -140,6 +214,10 @@ def layout_function(company):
                     # En-tête de la page
                     dbc.Row(
                         dbc.Col(header_prospect_detail(company.title(), "", "", ""), width=12),
+                        style={"paddingBottom": "1rem", "backgroundColor": bg_color},
+                    ),
+                    dbc.Row(
+                        dbc.Col(create_contacts_section(company), width=12),
                         style={"paddingBottom": "1rem", "backgroundColor": bg_color},
                     ),
                     dbc.Row(
