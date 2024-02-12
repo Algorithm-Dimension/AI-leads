@@ -46,14 +46,24 @@ def update_companies_with_new_entries(df_companies, new_companies_df):
     return df_companies
 
 
-def fill_missing_values(df_companies, column_name, fill_method):
-    """Remplir les valeurs manquantes dans une colonne spécifique de df_companies."""
-    missing_mask = df_companies[column_name].isna()
-    df_companies.loc[missing_mask, column_name] = df_companies.loc[missing_mask, "company"].apply(fill_method)
+def fill_missing_values(df_companies: pd.DataFrame, column_name: str, fill_method) -> pd.DataFrame:
+    """Fill missing values in a specific column of df_companies."""
+    # We will use a for-loop instead of apply for better control over saving
+    missing_indices = df_companies[df_companies[column_name].isna()].index
+
+    for idx in missing_indices:
+        print(df_companies.iloc[idx]["company"])
+        # Fill the missing value with the result of the fill_method
+        df_companies.at[idx, column_name] = fill_method(df_companies.at[idx, "company"])
+        # Save the DataFrame after each fill
+        print(df_companies.iloc[idx])
+        print(len(df_companies))
+        save_df_to_csv(df_companies, COMPANY_FILE_PATH)
+
     return df_companies
 
 
-def save_df_to_csv(df, file_path, sep=";"):
+def save_df_to_csv(df: pd.DataFrame, file_path: str, sep=";"):
     """Sauvegarder un DataFrame dans un fichier CSV."""
     try:
         df.to_csv(file_path, sep=sep, index=False)
@@ -72,11 +82,11 @@ def process_company_updates():
     df_companies = fill_missing_values(
         df_companies, "activity_sector", LeadDataFrameConverter(scraper=scraper).determine_activity_sector
     )
-    save_df_to_csv(df_companies, COMPANY_FILE_PATH)
+    # save_df_to_csv(df_companies, COMPANY_FILE_PATH)
 
     df_companies = fill_missing_values(df_companies, "website_url", LeadDataFrameConverter().add_web_site_url)
 
-    save_df_to_csv(df_companies, COMPANY_FILE_PATH)
+    # save_df_to_csv(df_companies, COMPANY_FILE_PATH)
 
 
 if __name__ == "__main__":

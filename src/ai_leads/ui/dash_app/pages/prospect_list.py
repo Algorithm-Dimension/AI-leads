@@ -1,57 +1,68 @@
 import os
+from typing import List, Optional
 
+import dash
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
+import dash_html_components as html
 import numpy as np
 import pandas as pd
-from dash import dcc, html
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
-from unidecode import unidecode
 
-from ai_leads.Config.param import LEAD_FILE_PATH, LAST_UPDATE
+from ai_leads import utils
+
+# Local application imports
+from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import search_bar, update_button
 
+# Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
-# Data
 DATA_PATH = "data/"
+
+# Read and preprocess the data
 df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
-unique_is_contacted = ["Oui", "Non"]
-# Create a Dropdown component for selecting contact status
-global contact_dropdown
+# Dropdown options based on unique contact statuses
+unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
+
+# Dropdown component for selecting contact status
 contact_dropdown = dcc.Dropdown(
     id="contact-dropdown",
-    options=[
-        {"label": is_contacted, "value": is_contacted}
-        for is_contacted in unique_is_contacted
-        if not pd.isna(is_contacted)
-    ],
-    multi=True,  # Allow multiple selections
+    options=[{"label": status, "value": status} for status in unique_is_contacted if pd.notna(status)],
+    multi=True,
     placeholder="Contacté",
     style={"border-color": "#ECECEC"},
 )
 
 
 @app.callback(
-    Output("update-output", "children"),  # Update this if needed
+    Output("update-output", "children"),
     Input("update-button", "n_clicks"),
     State({"type": "contacted-output", "index": ALL}, "value"),
 )
-def update_dataframe(n_clicks, checkbox_states):
+def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> None:
+    """
+    Update the dataframe 'Contacté' column based on the checkbox state and save it to CSV.
+
+    :param n_clicks: Number of times the update button was clicked.
+    :param checkbox_states: List of states for each 'Contacté' checkbox.
+    """
     if n_clicks is None or n_clicks < 1:
         raise PreventUpdate
+
     for company, state in zip(df_final_result_leads["Entreprise"], checkbox_states):
+        # Normalize company name for matching
+        normalized_company = utils.clean_str_unidecode(company)
         df_final_result_leads.loc[
-            df_final_result_leads["Entreprise"].apply(lambda x: unidecode(x)) == unidecode(company), "Contacté"
+            df_final_result_leads["Entreprise"].apply(utils.clean_str_unidecode) == normalized_company, "Contacté"
         ] = ("Oui" if state else "Non")
 
     # Save the updated DataFrame
     df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=";", index=False)
-
-    return
 
 
 @app.callback(
@@ -123,34 +134,7 @@ def update_prospect_list(
         contacted_checked = already_contacted == "Oui"
         prospect_cards.append(
             dbc.Card(
-                # [
-                # dbc.CardHeader(
-                #         html.Strong(client, style={"color": "#343a40"}),  # Couleur de texte personnalisée
-                #         style={"backgroundColor": "#f8f9fa", "borderBottom": "1px solid #dee2e6"},  # En-tête stylisé
-                #     ),
-                #     dbc.CardBody(
-                #         [
-                #             html.P(f"{city} - {state}", className="text-muted"),  # Classe de texte personnalisée
-                #             html.P(food_provider_text, style=food_provider_style),
-                #             dbc.Button(
-                #                 [
-                #                     "Overview ",  # Espace ajouté avant l'icône pour une meilleure esthétique
-                #                 ],
-                #                 href=f"/prospect_detail/{segment}_id_{id}",
-                #                 style={
-                #                     "backgroundColor": "#2255c5",  # Couleur de fond personnalisée
-                #                     "color": "white",
-                #                     "border": "none",
-                #                     "boxShadow": "0 4px 8px 0 rgba(0,0,0,0.2)",  # Ombre portée
-                #                     "transition": "0.3s",  # Animation de transition
-                #                 },
-                #                 className="my-2",  # Marges personnalisées (classe Bootstrap)
-                #             ),
-                #         ],
-                #         style={"padding": "20px"},  # Padding personnalisé
-                #     )],
                 [
-                    # html.Img(src=f"../assets/svg/{segment}.svg", style={"width": "auto", "height": "50px"}),
                     html.Div(
                         [
                             html.Div(
@@ -159,17 +143,18 @@ def update_prospect_list(
                                         html.A(
                                             client.title(),
                                             href=website_url,
+                                            style={
+                                                "color": "blue",
+                                                "text-decoration": "underline",
+                                                "cursor": "pointer",
+                                                "font-weight": "bold",
+                                                "font-size": "16px",
+                                            },
                                         ),
-                                        style={
-                                            "text-decoration": "underline",
-                                            "cursor": "pointer",
-                                            "font-weight": "bold",
-                                            "font-size": "16px",
-                                        },
                                     ),
                                     dbc.Button(
                                         [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                        href=f"/list_offers/{unidecode(client).replace(' ', '')}",
+                                        href=f"/list_offers/{utils.clean_str_unidecode(client).replace(' ', '')}",
                                         style={
                                             "display": "flex",
                                             "flex-direction": "row",

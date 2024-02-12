@@ -23,7 +23,6 @@ search_bar = html.Div(
                 html.I(className="bi bi-search"),  # Icône de recherche FontAwesome
                 color="primary",
                 className="btn-lg",
-                style={"backgroundColor": "rgb(34, 85, 197)"},
                 id="search-button",
             ),
         ],

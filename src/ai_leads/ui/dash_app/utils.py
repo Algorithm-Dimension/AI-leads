@@ -2,9 +2,9 @@ import os
 
 import numpy as np
 import pandas as pd
-from unidecode import unidecode
 
 from ai_leads.Config.param import LEAD_FILE_PATH
+from ai_leads import utils
 
 # Data
 DATA_PATH = "data/"
@@ -17,7 +17,7 @@ df_final_result_leads["Entreprise"] = df_final_result_leads["Entreprise"].astype
 def extract_client_name(path: str) -> str:
     unidecoded_company = path[len("/list_offers/") :]
     company = df_final_result_leads[
-        df_final_result_leads["Entreprise"].apply(lambda x: unidecode(x).replace(" ", "")) == unidecoded_company
+        df_final_result_leads["Entreprise"].apply(utils.clean_str_unidecode) == unidecoded_company
     ]["Entreprise"].iloc[0]
     return company
 
