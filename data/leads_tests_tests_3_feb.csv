@@ -1,5 +1,5 @@
 Entreprise;source;Nombre d'offres postés les 10 derniers jours;Contacté;Notes;website_url;activity_sector
-Iscod;Cadre EmploiCadre Emploi;46;Non;;https://www.iscod.fr/;Formation/Education
+Iscod;Cadre EmploiCadre Emploi;46;Non;Iscod: boîte de formation. Propose des alternances. Pas intéréssant.;https://www.iscod.fr/;Formation/Education
 Aureïs Formation;Hello WorkHello Work;35;Oui;;https://www.aureisformation.fr/;Formation/Education
 Armée De L'Air Et De L'Espace;Cadre EmploiCadre Emploi;24;Non;;https://www.defense.gouv.fr/air;Other
 Armée De Terre Française;Cadre EmploiCadre Emploi;15;Non;;https://www.defense.gouv.fr/terre;Other
@@ -7,7 +7,7 @@ Chanel;IndeedLinkedInIndeed;11;Non;;https://www.chanel.com/fr/;Other
 Institut F2I;Hello WorkHello Work;10;Non;;https://www.institut-f2i.fr/;Formation/Education
 Groupe Kering;IndeedIndeed;10;Non;;https://www.kering.com/fr/groupe/;Other
 Printemps;LinkedInIndeedLinkedIn;8;Non;;https://www.printemps.com/fr/fr;Other
-Galeries Lafayette;Hello WorkIndeed;8;Oui;;https://www.galerieslafayette.com/;Other
+Galeries Lafayette;Hello WorkIndeed;8;Oui;Taux trop faibles. Pas rentable;https://www.galerieslafayette.com/;Other
 Louis Vuitton;IndeedIndeed;7;Non;;https://fr.louisvuitton.com/fra-fr/homepage;Other
 Grant Thornton France;Cadre EmploiCadre Emploi;7;Non;;https://www.grantthornton.fr/fr/;Other
 Nestenn Immobilier;Cadre EmploiCadre Emploi;6;Non;;https://nestenn.com/;Other
@@ -22,7 +22,6 @@ Groupama Gan Vie;Cadre Emploi;4;;;https://www.groupama.com/fr/fiche/groupama-gan
 Rothschild & Co;LinkedInIndeed;4;Non;;https://www.rothschildandco.com/fr/;Other
 E.Leclerc;LinkedInIndeed;4;Non;;https://www.e.leclerc/;Other
 Aureïs Formation Alternance;Hello Work;4;;;https://www.aureisformation.fr/;Formation/Education
-N.A.;Hello WorkHello Work;4;;;https://en.wikipedia.org/wiki/Na;Other
 Agence France Prestige;LinkedInHello Work;4;Non;;https://franceprestige.net/;Other
 Chantelle;LinkedInLinkedIn;3;;;https://chantelle.com/fr;Other
 Agroparistech;LinkedInLinkedIn;3;;;https://www.agroparistech.fr/;Formation/Education

@@ -161,7 +161,7 @@ def linkedin_contact_output(company: str):
 def create_contacts_section(company: str):
     contacts = linkedin_contact_output(company)
     if not contacts:
-        return html.P("Aucun contact pertinent trouvé.")
+        return html.P("Aucun contact pertinent trouvé")
 
     contacts_elements = []
     for contact in contacts:
@@ -240,6 +240,17 @@ def save_personal_notes(n_clicks, notes, company):
     return no_update
 
 
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("save-button", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
 def layout_function(company):
     # Utilisez dbc.Row ou dbc.Col pour créer des espaces gris clair entre les sections
     section_spacing_style = {"paddingTop": "0.5rem", "paddingBottom": "0.5rem"}  # Ajustez les valeurs selon les besoins
@@ -269,7 +280,12 @@ def layout_function(company):
                     # En-tête de la page
                     dbc.Row(
                         dbc.Col(header_prospect_detail(company.title(), "", "", ""), width=12),
-                        style={"paddingBottom": "1rem", "backgroundColor": bg_color},
+                        style={
+                            "paddingBottom": "1rem",
+                            "paddingLeft": "1rem",
+                            "paddingRight": "1rem",
+                            "backgroundColor": bg_color,
+                        },
                     ),
                     dbc.Accordion(
                         dbc.AccordionItem(
@@ -291,11 +307,27 @@ def layout_function(company):
                                                 "height": "200px",
                                             },  # Ajustez la taille selon vos préférences
                                         ),
-                                        dbc.Button(
-                                            "Sauvegarder",
-                                            id="save-button",
-                                            color="primary",  # Couleur du bouton
-                                            className="mt-3",  # Marge supérieure pour l'espacement
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Sauvegarder",
+                                                    id="save-button",
+                                                    color="primary",  # Couleur du bouton
+                                                    className="mt-3",  # Marge supérieure pour l'espacement
+                                                ),
+                                                dbc.Modal(
+                                                    [
+                                                        dbc.ModalBody("Vos notes ont bien été sauvegardées"),
+                                                        dbc.ModalFooter(
+                                                            dbc.Button(
+                                                                "Fermer", id="close", className="ms-auto", n_clicks=0
+                                                            )
+                                                        ),
+                                                    ],
+                                                    id="modal",
+                                                    is_open=False,
+                                                ),
+                                            ]
                                         ),
                                     ]
                                 ),

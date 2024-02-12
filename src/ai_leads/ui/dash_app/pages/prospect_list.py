@@ -94,7 +94,7 @@ def update_prospect_list(
         ],
         multi=True,  # Allow multiple selections
         placeholder="Sélectionnez le statut",
-        style={"border-color": "#ECECEC"},
+        style={"border-color": "#FFFFFF"},
     )
     if search_term:
         # Filter based on the search term
@@ -159,7 +159,6 @@ def update_prospect_list(
                                 },
                             ),
                             html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
-                            html.P(f"À : Paris", style={"margin": "0"}),
                             html.P(
                                 f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}
                             ),
@@ -183,7 +182,7 @@ def update_prospect_list(
                     "flex-direction": "row",
                     "column-gap": "20px",
                     "borderRadius": "15px",
-                    "border-color": "#B71515",
+                    "border-color": "primary",
                     "boxShadow": "0 6px 20px 0 #0D234F14",
                     "padding": "24px",
                 },  # Style de carte global
@@ -304,5 +303,5 @@ layout = html.Div(
             style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
         ),
     ],
-    style={"display": "flex", "flex-direction": "column", "background-color": "#F7F7F7"},
+    style={"display": "flex", "flex-direction": "column", "background-color": "#FFFFFF"},
 )
