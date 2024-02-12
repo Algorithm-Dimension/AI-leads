@@ -56,8 +56,6 @@ def fill_missing_values(df_companies: pd.DataFrame, column_name: str, fill_metho
         # Fill the missing value with the result of the fill_method
         df_companies.at[idx, column_name] = fill_method(df_companies.at[idx, "company"])
         # Save the DataFrame after each fill
-        print(df_companies.iloc[idx])
-        print(len(df_companies))
         save_df_to_csv(df_companies, COMPANY_FILE_PATH)
 
     return df_companies
