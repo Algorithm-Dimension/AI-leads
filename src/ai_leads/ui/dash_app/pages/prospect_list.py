@@ -1,7 +1,6 @@
 import os
 from typing import List, Optional
 
-import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -14,6 +13,7 @@ from ai_leads import utils
 
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
+
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import search_bar, update_button
 
@@ -104,20 +104,6 @@ def update_prospect_list(
     else:
         # Select all prospects if no search term is provided
         filtered_prospects = df_final_result_leads
-    """
-    # Filter prospect based on selected food providers
-    if selected_food_providers:
-        filtered_prospects = filtered_prospects[filtered_prospects["foodProviderLLM"].isin(selected_food_providers)]"""
-
-    """
-    # Filter prospect based on selected states
-    if selected_states:
-        filtered_prospects = filtered_prospects[filtered_prospects["state"].isin(selected_states)]"""
-
-    """
-    # Filter prospect based on selected states
-    if selected_segments:
-        filtered_prospects = filtered_prospects[filtered_prospects["segment"].isin(selected_segments)]"""
 
     # Filter prospect based on selected states
     if selected_is_contacted:
@@ -139,18 +125,20 @@ def update_prospect_list(
                         [
                             html.Div(
                                 [
-                                    dbc.Col(
-                                        html.A(
-                                            client.title(),
-                                            href=website_url,
-                                            style={
-                                                "color": "blue",
-                                                "text-decoration": "underline",
-                                                "cursor": "pointer",
-                                                "font-weight": "bold",
-                                                "font-size": "16px",
-                                            },
-                                        ),
+                                    dbc.Row(
+                                        dbc.Col(
+                                            html.A(
+                                                client.title(),
+                                                href=website_url,
+                                                style={
+                                                    "color": "blue",
+                                                    "text-decoration": "underline",
+                                                    "cursor": "pointer",
+                                                    "font-weight": "bold",
+                                                    "font-size": "16px",
+                                                },
+                                            ),
+                                        )
                                     ),
                                     dbc.Button(
                                         [html.Img(src="../assets/svg/eye.svg"), "Détail"],
@@ -213,7 +201,7 @@ layout = html.Div(
                     html.Div(
                         [
                             html.H1(
-                                "Plateforme de leads pour Kara",
+                                "Plateforme de prospection pour Kara",
                                 style={"color": "#EEEEEE", "font-weight": "400", "text-shadow": "0px 0px 1px #000000"},
                             ),
                             html.H3(
@@ -240,12 +228,13 @@ layout = html.Div(
                 },
             ),
             style={
-                "height": "400px",
-                "background-image": "url('../assets/hero4.jpg')",
+                "height": "500px",
+                "background-image": "url('../assets/kara_banniere.jpg')",
                 "background-size": "cover",
                 "display": "flex",
                 "justify-content": "center",
                 "padding": "20px",
+                "padding-top": "300px",
             },
         ),
         html.Div(

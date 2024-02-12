@@ -11,7 +11,7 @@ app = Dash(
     __name__,
     assets_folder="assets",
     external_stylesheets=[
-        dbc.themes.FLATLY,
+        dbc.themes.BOOTSTRAP,
         dbc.icons.BOOTSTRAP,
         "https://use.fontawesome.com/releases/v5.8.1/css/all.css",
     ],

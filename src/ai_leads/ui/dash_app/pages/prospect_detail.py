@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 
+import math
 import os
 from typing import List
 
 import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
-from dash import dcc, html, no_update
-from dash.dependencies import Input, Output, State
+from dash import ALL, Input, Output, State, dcc, html, no_update
 
-from ai_leads.Config.param import JOB_FILE_PATH, LEAD_FILE_PATH, CONTACT_FILE_PATH
+from ai_leads import utils
+from ai_leads.Config.param import CONTACT_FILE_PATH, JOB_FILE_PATH, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components.header import header_prospect_detail
-from ai_leads import utils
+from ai_leads.ui.dash_app.Config.param import COLOR_DICT_JOB_BOARD_BADGES, JOBS_PER_PAGE
 from ai_leads.ui.dash_app.utils import sort_df_by_date
+
+# from dash.dependencies import ALL, Input, Output, State, callback_context, dcc, html, no_update
+
 
 df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";", dtype=str)[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
@@ -48,7 +52,9 @@ def _create_job_div(row):
         },
     )  # Informations sur l'emplacement
     offer_date_html = html.Small(offer_date, className="text-muted")  # Date de l'offre
-    platform_html = html.Small(source_platform.title(), className="text-muted")  # Plateforme source
+    platform_html = html.A(
+        dbc.Badge(source_platform.title(), color=COLOR_DICT_JOB_BOARD_BADGES[source_platform]), className="text-muted"
+    )  # Plateforme source
 
     # Compiler les composants dans une seule Div
     job_div = html.Div(
@@ -70,15 +76,59 @@ def _create_job_div(row):
     return job_div
 
 
-def job_list_output(company: str) -> List[dbc.Row]:
-    """Function to create the list of job on the web app"""
+def paginate_dataframe(df: pd.DataFrame, page: int, page_size: int = JOBS_PER_PAGE):
+    """Return a slice of the dataframe corresponding to the page number."""
+    start = (page - 1) * page_size
+    end = start + page_size
+    return df.iloc[start:end]
+
+
+# Pagination Component
+def render_pagination(total_pages: int, active_page: int):
+    """Render pagination component with buttons."""
+    pagination_style = {"color": "#007BFF", "backgroundColor": "transparent", "borderColor": "#007BFF"}  # Example color
+    active_style = {"backgroundColor": "#007BFF", "borderColor": "#0056b3", "color": "white"}  # Example active color
+
+    return dbc.Pagination(
+        max_value=total_pages,
+        active_page=active_page,
+        previous_next=True,
+        fully_expanded=False,
+        id="pagination",
+    )
+
+
+def job_list_output(company: str, page: int) -> List[dbc.Row]:
+    """Function to create the list of job divs for a specific page in the web app."""
     if utils.clean_str_unidecode(company) in list(df_jobs["company"].apply(utils.clean_str_unidecode)):
         rows = df_jobs.loc[df_jobs["company"].apply(utils.clean_str_unidecode) == utils.clean_str_unidecode(company)]
-        # Apply the function to create HTML divs for each meal plan
-        rows = sort_df_by_date(rows, "offer date")
-        job_divs = rows.apply(_create_job_div, axis=1)
+        # Sort by date and paginate
+        sorted_rows = sort_df_by_date(rows, "offer date")
+        page_rows = paginate_dataframe(sorted_rows, page)
+        job_divs = page_rows.apply(_create_job_div, axis=1)
         return job_divs.tolist()
     return []
+
+
+@app.callback(
+    Output("job-list", "children"),
+    Output("pagination", "active_page"),
+    [Input("pagination", "active_page")],
+    [State("company-name-store", "data")],
+)
+def update_page(active_page: int, company: str):
+    # Determine the new page number from the pagination component
+    if not active_page:
+        active_page = 1
+
+    # Fetch the new page of jobs
+    job_divs = job_list_output(company, active_page)
+
+    # Return the updated job divs and the current page
+    return job_divs, active_page
+
+
+# Don't forget to add the 'job-list' and pagination components to your layout
 
 
 def linkedin_contact_output(company: str):
@@ -130,26 +180,18 @@ def create_contacts_section(company: str):
 
         contact_element = dbc.Row(
             [
-                dbc.Col(contact_link),
+                dbc.Col(contact_link, align="center"),
             ],
+            align="center",
             className="mb-2",
         )
         contacts_elements.append(contact_element)
 
     return dbc.Card(
         [
-            dbc.CardHeader("Contacts potentiellement pertinents"),
+            dbc.CardHeader("Profils Linkedin"),
             dbc.CardBody(contacts_elements),
         ],
-        className="mb-3",
-    )
-
-    return dbc.Card(
-        [
-            dbc.CardHeader("Contacts potentiellement pertinents"),
-            dbc.CardBody(contacts_elements),
-        ],
-        className="mb-3",
     )
 
 
@@ -206,6 +248,19 @@ def layout_function(company):
     # Obtenir la valeur de la colonne "Notes" pour la ligne correspondante
     notes_default_value = df_final_result_leads.loc[df_final_result_leads["Entreprise"] == company, "Notes"].values[0]
 
+    # Obtenir le nombre de pages
+
+    total_jobs = len(df_jobs[df_jobs["company"].apply(utils.clean_str_unidecode) == utils.clean_str_unidecode(company)])
+    total_pages = math.ceil(total_jobs / JOBS_PER_PAGE)
+    # Pagination component at the top of the job list
+    pagination_component = render_pagination(total_pages, active_page=1)
+
+    # Initial job list for the first page
+    initial_job_list = job_list_output(company, page=1)
+
+    # Container for the dynamic job list
+    job_list_container = html.Div(id="job-list", children=initial_job_list)
+
     layout = html.Div(
         children=[
             dbc.Container(
@@ -216,9 +271,11 @@ def layout_function(company):
                         dbc.Col(header_prospect_detail(company.title(), "", "", ""), width=12),
                         style={"paddingBottom": "1rem", "backgroundColor": bg_color},
                     ),
-                    dbc.Row(
-                        dbc.Col(create_contacts_section(company), width=12),
-                        style={"paddingBottom": "1rem", "backgroundColor": bg_color},
+                    dbc.Accordion(
+                        dbc.AccordionItem(
+                            [create_contacts_section(company)],
+                            title="Contacts potentiellement pertinents",
+                        )
                     ),
                     dbc.Row(
                         dbc.Col(
@@ -249,8 +306,14 @@ def layout_function(company):
                         ),
                         style={**section_spacing_style, "backgroundColor": bg_color},
                     ),
+                    # Add the pagination component before the job list
                     dbc.Row(
-                        dbc.Col(job_info(company), width=12),
+                        dbc.Col(pagination_component, width=12),
+                        style={**section_spacing_style, "backgroundColor": bg_color},
+                    ),
+                    # Add the container that will hold the dynamic job list
+                    dbc.Row(
+                        dbc.Col(job_list_container, width=12),
                         style={**section_spacing_style, "backgroundColor": bg_color},
                     ),
                 ],
