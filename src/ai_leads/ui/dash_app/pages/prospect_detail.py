@@ -279,7 +279,7 @@ def layout_function(company):
                     html.Br(),
                     # En-tête de la page
                     dbc.Row(
-                        dbc.Col(header_prospect_detail(company.title(), "", "", ""), width=12),
+                        dbc.Col(header_prospect_detail(company.title()), width=12),
                         style={
                             "paddingBottom": "1rem",
                             "paddingLeft": "1rem",

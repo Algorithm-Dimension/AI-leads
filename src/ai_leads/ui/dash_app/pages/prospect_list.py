@@ -15,7 +15,7 @@ from ai_leads import utils
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import search_bar, update_button
+from ai_leads.ui.dash_app.components import search_bar, update_button, add_contact
 
 # Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
@@ -131,8 +131,8 @@ def update_prospect_list(
                                                 client.title(),
                                                 href=website_url,
                                                 style={
-                                                    "color": "blue",
-                                                    "text-decoration": "underline",
+                                                    "color": "#444444",
+                                                    "text-decoration": "none",
                                                     "cursor": "pointer",
                                                     "font-weight": "bold",
                                                     "font-size": "16px",
@@ -239,6 +239,7 @@ layout = html.Div(
         html.Div(
             [
                 update_button.update_button,
+                add_contact.modal_new_contact,
                 html.Div(
                     [
                         html.Div(
