@@ -7,3 +7,12 @@ COLOR_DICT_JOB_BOARD_BADGES = {
 }
 
 JOBS_PER_PAGE = 5
+
+COLOR_DICT_ATTRIBUTED_SALE = {
+    "Rachel": "secondary",
+    "Karine": "success",
+    "Esther": "info",
+    "Barbara": "warning",
+    "Judith": "dark",
+    "Alexandra": "danger",
+}

@@ -2,10 +2,9 @@ import os
 from typing import List, Optional
 
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 import numpy as np
 import pandas as pd
+from dash import dcc, html
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -13,9 +12,9 @@ from ai_leads import utils
 
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
-
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import search_bar, update_button, add_contact
+from ai_leads.ui.dash_app.components import add_contact, sales_attributed_tags, search_bar, update_button
+from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE
 
 # Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
@@ -111,13 +110,17 @@ def update_prospect_list(
 
     # Create prospect cards with an 'Overview' button
     prospect_cards = []
-    for client, nb_offer, already_contacted, website_url in zip(
+    for index, client, nb_offer, already_contacted, website_url, attributed_sale in zip(
+        list(range(len(filtered_prospects))),
         filtered_prospects["Entreprise"],
         filtered_prospects["Nombre d'offres postés les 10 derniers jours"],
         filtered_prospects["Contacté"],
         filtered_prospects["website_url"],
+        filtered_prospects["attributed_sale"],
     ):
+        index = int(index)
         contacted_checked = already_contacted == "Oui"
+        sales_attributed_tags_section = sales_attributed_tags.tag_component(attributed_sale, index)
         prospect_cards.append(
             dbc.Card(
                 [
@@ -167,6 +170,7 @@ def update_prospect_list(
                                 value=contacted_checked,
                                 label="Déjà Contacté ?",
                             ),
+                            sales_attributed_tags_section,
                         ],
                         style={
                             "display": "flex",

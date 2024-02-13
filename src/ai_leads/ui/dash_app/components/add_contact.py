@@ -4,9 +4,8 @@ import pandas as pd
 from dash import Input, Output, State, html
 from dash.exceptions import PreventUpdate
 
-# Assurez-vous que les chemins suivants sont correctement définis dans votre module de configuration
 from ai_leads.Config.param import COMPANY_FILE_PATH, LEAD_FILE_PATH, CompanyActivity
-from ai_leads.ui.dash_app.app import app  # Assurez-vous que 'app' est bien initialisé dans ce module
+from ai_leads.ui.dash_app.app import app
 
 # Formulaire pour entrer une nouvelle entreprise
 
