@@ -110,88 +110,90 @@ def update_prospect_list(
 
     # Create prospect cards with an 'Overview' button
     prospect_cards = []
-    for index, client, nb_offer, already_contacted, website_url, attributed_sale in zip(
-        list(range(len(filtered_prospects))),
-        filtered_prospects["Entreprise"],
-        filtered_prospects["Nombre d'offres postés les 10 derniers jours"],
-        filtered_prospects["Contacté"],
-        filtered_prospects["website_url"],
-        filtered_prospects["attributed_sale"],
+    for client, nb_offer, already_contacted, website_url, attributed_sale in zip(
+        df_final_result_leads["Entreprise"],
+        df_final_result_leads["Nombre d'offres postés les 10 derniers jours"],
+        df_final_result_leads["Contacté"],
+        df_final_result_leads["website_url"],
+        df_final_result_leads["attributed_sale"],
     ):
-        index = int(index)
         contacted_checked = already_contacted == "Oui"
-        sales_attributed_tags_section = sales_attributed_tags.tag_component(attributed_sale, index)
-        prospect_cards.append(
-            dbc.Card(
-                [
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    dbc.Row(
-                                        dbc.Col(
-                                            html.A(
-                                                client.title(),
-                                                href=website_url,
-                                                style={
-                                                    "color": "#444444",
-                                                    "text-decoration": "none",
-                                                    "cursor": "pointer",
-                                                    "font-weight": "bold",
-                                                    "font-size": "16px",
-                                                },
-                                            ),
-                                        )
-                                    ),
-                                    dbc.Button(
-                                        [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                        href=f"/list_offers/{utils.clean_str_unidecode(client).replace(' ', '')}",
-                                        style={
-                                            "display": "flex",
-                                            "flex-direction": "row",
-                                            "align-items": "center",
-                                            "column-gap": "8px",
-                                        },
-                                    ),
-                                ],
-                                style={
-                                    "justify-content": "space-between",
-                                    "display": "flex",
-                                    "flex-direction": "row",
-                                    "align-items": "center",
-                                },
-                            ),
-                            html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
-                            html.P(
-                                f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}
-                            ),
-                            dbc.Checkbox(
-                                id={"type": "contacted-output", "index": ""},
-                                value=contacted_checked,
-                                label="Déjà Contacté ?",
-                            ),
-                            sales_attributed_tags_section,
-                        ],
-                        style={
-                            "display": "flex",
-                            "flex-direction": "column",
-                            "justify-content": "start",
-                            "row-gap": "10px",
-                            "flex-grow": "1",
-                        },
-                    ),
-                ],
-                style={
-                    "display": "flex",
-                    "flex-direction": "row",
-                    "column-gap": "20px",
-                    "borderRadius": "15px",
-                    "border-color": "primary",
-                    "boxShadow": "0 6px 20px 0 #0D234F14",
-                    "padding": "24px",
-                },  # Style de carte global
+        sales_attributed_tags_section = sales_attributed_tags.tag_component(attributed_sale, client)
+        if client in list(filtered_prospects["Entreprise"]):
+            prospect_cards.append(
+                dbc.Card(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        dbc.Row(
+                                            dbc.Col(
+                                                html.A(
+                                                    client.title(),
+                                                    href=website_url,
+                                                    style={
+                                                        "color": "#444444",
+                                                        "text-decoration": "none",
+                                                        "cursor": "pointer",
+                                                        "font-weight": "bold",
+                                                        "font-size": "16px",
+                                                    },
+                                                ),
+                                            )
+                                        ),
+                                        dbc.Button(
+                                            [html.Img(src="../assets/svg/eye.svg"), "Détail"],
+                                            href=f"/list_offers/{utils.clean_str_unidecode(client).replace(' ', '')}",
+                                            style={
+                                                "display": "flex",
+                                                "flex-direction": "row",
+                                                "align-items": "center",
+                                                "column-gap": "8px",
+                                            },
+                                        ),
+                                    ],
+                                    style={
+                                        "justify-content": "space-between",
+                                        "display": "flex",
+                                        "flex-direction": "row",
+                                        "align-items": "center",
+                                    },
+                                ),
+                                html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
+                                html.P(
+                                    f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}",
+                                    style={"margin": "0"},
+                                ),
+                                dbc.Checkbox(
+                                    id={"type": "contacted-output", "index": ""},
+                                    value=contacted_checked,
+                                    label="Déjà Contacté ?",
+                                ),
+                                sales_attributed_tags_section,
+                            ],
+                            style={
+                                "display": "flex",
+                                "flex-direction": "column",
+                                "justify-content": "start",
+                                "row-gap": "10px",
+                                "flex-grow": "1",
+                            },
+                        ),
+                    ],
+                    style={
+                        "display": "flex",
+                        "flex-direction": "row",
+                        "column-gap": "20px",
+                        "borderRadius": "15px",
+                        "border-color": "primary",
+                        "boxShadow": "0 6px 20px 0 #0D234F14",
+                        "padding": "24px",
+                    },  # Style de carte global
+                )
             )
-        )
+        else:
+            prospect_cards.append(html.Div(sales_attributed_tags_section))
 
     return prospect_cards
 
@@ -307,6 +309,7 @@ layout = html.Div(
             id="update-output",
             style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
         ),
+        html.Div(id="container-for-badges"),
     ],
     style={"display": "flex", "flex-direction": "column", "background-color": "#FFFFFF"},
 )
