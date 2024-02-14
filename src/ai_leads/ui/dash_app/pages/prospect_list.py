@@ -13,7 +13,13 @@ from ai_leads import utils
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import add_contact, sales_attributed_tags, search_bar, update_button
+from ai_leads.ui.dash_app.components import (
+    add_contact,
+    sales_attributed_tags,
+    search_bar,
+    update_button,
+    component_card,
+)
 from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE
 
 # Constants
@@ -109,7 +115,8 @@ def update_prospect_list(
         filtered_prospects = filtered_prospects[filtered_prospects["Contacté"].isin(selected_is_contacted)]
 
     # Create prospect cards with an 'Overview' button
-    prospect_cards = []
+    prospect_cards_none = []
+    prospect_cards_flex = []
     for client, nb_offer, already_contacted, website_url, attributed_sale in zip(
         df_final_result_leads["Entreprise"],
         df_final_result_leads["Nombre d'offres postés les 10 derniers jours"],
@@ -117,84 +124,15 @@ def update_prospect_list(
         df_final_result_leads["website_url"],
         df_final_result_leads["attributed_sale"],
     ):
-        contacted_checked = already_contacted == "Oui"
-        sales_attributed_tags_section = sales_attributed_tags.tag_component(attributed_sale, client)
-        if client in list(filtered_prospects["Entreprise"]):
-            prospect_cards.append(
-                dbc.Card(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    [
-                                        dbc.Row(
-                                            dbc.Col(
-                                                html.A(
-                                                    client.title(),
-                                                    href=website_url,
-                                                    style={
-                                                        "color": "#444444",
-                                                        "text-decoration": "none",
-                                                        "cursor": "pointer",
-                                                        "font-weight": "bold",
-                                                        "font-size": "16px",
-                                                    },
-                                                ),
-                                            )
-                                        ),
-                                        dbc.Button(
-                                            [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                            href=f"/list_offers/{utils.clean_str_unidecode(client).replace(' ', '')}",
-                                            style={
-                                                "display": "flex",
-                                                "flex-direction": "row",
-                                                "align-items": "center",
-                                                "column-gap": "8px",
-                                            },
-                                        ),
-                                    ],
-                                    style={
-                                        "justify-content": "space-between",
-                                        "display": "flex",
-                                        "flex-direction": "row",
-                                        "align-items": "center",
-                                    },
-                                ),
-                                html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
-                                html.P(
-                                    f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}",
-                                    style={"margin": "0"},
-                                ),
-                                dbc.Checkbox(
-                                    id={"type": "contacted-output", "index": ""},
-                                    value=contacted_checked,
-                                    label="Déjà Contacté ?",
-                                ),
-                                sales_attributed_tags_section,
-                            ],
-                            style={
-                                "display": "flex",
-                                "flex-direction": "column",
-                                "justify-content": "start",
-                                "row-gap": "10px",
-                                "flex-grow": "1",
-                            },
-                        ),
-                    ],
-                    style={
-                        "display": "flex",
-                        "flex-direction": "row",
-                        "column-gap": "20px",
-                        "borderRadius": "15px",
-                        "border-color": "primary",
-                        "boxShadow": "0 6px 20px 0 #0D234F14",
-                        "padding": "24px",
-                    },  # Style de carte global
-                )
-            )
+        if client not in list(filtered_prospects["Entreprise"]):
+            display = "none"
+            component_card_section = component_card.component_card_function(client, nb_offer, website_url, display)
+            prospect_cards_none.append(component_card_section)
         else:
-            prospect_cards.append(html.Div(sales_attributed_tags_section))
-
+            display = "flex"
+            component_card_section = component_card.component_card_function(client, nb_offer, website_url, display)
+            prospect_cards_flex.append(component_card_section)
+        prospect_cards = prospect_cards_flex + prospect_cards_none
     return prospect_cards
 
 
