@@ -1,13 +1,13 @@
 Unnamed: 0;Entreprise;source;Nombre d'offres postés les 10 derniers jours;Contacté;Notes;website_url;activity_sector;attributed_sale
-0;Iscod;Cadre EmploiCadre Emploi;46;Oui;Iscod: boîte de formation. Propose des alternances. Pas intéréssant.;https://www.iscod.fr/;Formation/Education;
-1;Aureïs Formation;Hello WorkHello Work;35;Oui;;https://www.aureisformation.fr/;Formation/Education;
+0;Iscod;Cadre EmploiCadre Emploi;46;Non;Iscod: boîte de formation. Propose des alternances. Pas intéréssant.;https://www.iscod.fr/;Formation/Education;
+1;Aureïs Formation;Hello WorkHello Work;35;Non;;https://www.aureisformation.fr/;Formation/Education;Rachel
 2;Armée De L'Air Et De L'Espace;Cadre EmploiCadre Emploi;24;Non;;https://www.defense.gouv.fr/air;Other;
 3;Armée De Terre Française;Cadre EmploiCadre Emploi;15;Non;;https://www.defense.gouv.fr/terre;Other;
 4;Chanel;IndeedLinkedInIndeed;11;Non;;https://www.chanel.com/fr/;Other;
 5;Institut F2I;Hello WorkHello Work;10;Non;;https://www.institut-f2i.fr/;Formation/Education;
 6;Groupe Kering;IndeedIndeed;10;Non;;https://www.kering.com/fr/groupe/;Other;
 7;Printemps;LinkedInIndeedLinkedIn;8;Non;;https://www.printemps.com/fr/fr;Other;
-8;Galeries Lafayette;Hello WorkIndeed;8;Oui;Taux trop faibles. Pas rentable;https://www.galerieslafayette.com/;Other;
+8;Galeries Lafayette;Hello WorkIndeed;8;Non;Taux trop faibles. Pas rentable;https://www.galerieslafayette.com/;Other;
 9;Louis Vuitton;IndeedIndeed;7;Non;;https://fr.louisvuitton.com/fra-fr/homepage;Other;
 10;Grant Thornton France;Cadre EmploiCadre Emploi;7;Non;;https://www.grantthornton.fr/fr/;Other;
 11;Nestenn Immobilier;Cadre EmploiCadre Emploi;6;Non;;https://nestenn.com/;Other;

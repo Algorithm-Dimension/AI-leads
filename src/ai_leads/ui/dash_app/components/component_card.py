@@ -7,18 +7,17 @@ import pandas as pd
 from dash import dcc, html
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
-
+from ai_leads.ui.dash_app.components import sales_attributed_tags
 from ai_leads import utils
 
 # Local application imports
-from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
-from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE
+from ai_leads.Config.param import LAST_UPDATE
 
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
 
 
-def component_card_function(client, nb_offer, website_url, display="flex"):
+def component_card_function(company, nb_offer, website_url, attributed_sale, display="flex"):
+    component_tag = sales_attributed_tags.tag_component(attributed_sale, company)
     component_card = html.Div(
         dbc.Card(
             [
@@ -29,7 +28,7 @@ def component_card_function(client, nb_offer, website_url, display="flex"):
                                 dbc.Row(
                                     dbc.Col(
                                         html.A(
-                                            client.title(),
+                                            company.title(),
                                             href=website_url,
                                             style={
                                                 "color": "#444444",
@@ -43,7 +42,7 @@ def component_card_function(client, nb_offer, website_url, display="flex"):
                                 ),
                                 dbc.Button(
                                     [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                    href=f"/list_offers/{utils.clean_str_unidecode(client).replace(' ', '')}",
+                                    href=f"/list_offers/{utils.clean_str_unidecode(company).replace(' ', '')}",
                                     style={
                                         "display": "flex",
                                         "flex-direction": "row",
@@ -68,6 +67,7 @@ def component_card_function(client, nb_offer, website_url, display="flex"):
                             id={"type": "contacted-output", "index": ""},
                             label="Déjà Contacté ?",
                         ),
+                        component_tag,
                     ],
                     style={
                         "display": "flex",

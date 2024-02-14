@@ -2,7 +2,7 @@ import json
 from typing import List, Optional
 
 import dash_bootstrap_components as dbc
-from dash import html
+from dash import html, no_update
 import numpy as np
 import pandas as pd
 from dash import html, callback_context
@@ -38,7 +38,10 @@ def tag_component(attributed_sale: str, company: str):
                         ],
                         className="g-1 align-items-center",
                     ),
-                    color="primary",
+                    color=COLOR_DICT_ATTRIBUTED_SALE[attributed_sale]
+                    if attributed_sale in COLOR_DICT_ATTRIBUTED_SALE
+                    else "light",
+                    pill=True,
                     className="px-2",
                 ),
                 align="left",
@@ -46,25 +49,37 @@ def tag_component(attributed_sale: str, company: str):
         )
     else:
         tag_component_section = html.Div(id="delete-badge-button-" + utils.clean_str_unidecode(company))
-    return tag_component_section
+    return html.Div(tag_component_section, id="delete-badge-button-set" + utils.clean_str_unidecode(company))
 
 
 df_lead = pd.read_csv(LEAD_FILE_PATH, sep=";", dtype=str)
 
 
 @app.callback(
-    Output("container-for-badges", "children"),
+    [
+        Output("delete-badge-button-set" + utils.clean_str_unidecode(company), "style")
+        for company in df_lead["Entreprise"]
+    ],
     [
         Input("delete-badge-button-" + utils.clean_str_unidecode(company), "n_clicks")
         for company in df_lead["Entreprise"]
     ],
-    prevent_initial_call=True,
+    prevent_initial_call=True,  # Pour éviter que le callback ne se déclenche au chargement de la page
 )
-def delete_badge(*args):
+def delete_tag_attribute_sale(*args):
     df_lead = pd.read_csv(LEAD_FILE_PATH, sep=";", dtype=str)
     df_table_company = pd.read_csv(COMPANY_FILE_PATH, sep=";", dtype=str)
+    ctx = callback_context
+
+    if not ctx.triggered:
+        # Si rien n'a été déclenché, ne pas modifier le style
+        return no_update
     triggered_id = str(callback_context.triggered[0]["prop_id"].split(".")[0])
     company = triggered_id.split("-")[-1]
+    return_list = [
+        {"display": "none"} if company == utils.clean_str_unidecode(company_test) else no_update
+        for company_test in list(df_lead["Entreprise"])
+    ]
     df_lead.loc[
         df_lead["Entreprise"].apply(utils.clean_str_unidecode) == utils.clean_str_unidecode(company), "attributed_sale"
     ] = np.nan
@@ -78,4 +93,5 @@ def delete_badge(*args):
     df_table_company.to_csv(COMPANY_FILE_PATH, sep=";", index=False)
 
     print("Deleted company:", company)
-    return "Deleted"
+    # Retourner le style pour cacher la `div` correspondante
+    return return_list

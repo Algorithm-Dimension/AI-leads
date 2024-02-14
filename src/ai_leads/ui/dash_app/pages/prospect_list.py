@@ -126,11 +126,15 @@ def update_prospect_list(
     ):
         if client not in list(filtered_prospects["Entreprise"]):
             display = "none"
-            component_card_section = component_card.component_card_function(client, nb_offer, website_url, display)
+            component_card_section = component_card.component_card_function(
+                client, nb_offer, website_url, attributed_sale, display
+            )
             prospect_cards_none.append(component_card_section)
         else:
             display = "flex"
-            component_card_section = component_card.component_card_function(client, nb_offer, website_url, display)
+            component_card_section = component_card.component_card_function(
+                client, nb_offer, website_url, attributed_sale, display
+            )
             prospect_cards_flex.append(component_card_section)
         prospect_cards = prospect_cards_flex + prospect_cards_none
     return prospect_cards
@@ -247,7 +251,7 @@ layout = html.Div(
             id="update-output",
             style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
         ),
-        html.Div(id="container-for-badges"),
+        # html.Div(id="container-for-badges"),
     ],
     style={"display": "flex", "flex-direction": "column", "background-color": "#FFFFFF"},
 )
