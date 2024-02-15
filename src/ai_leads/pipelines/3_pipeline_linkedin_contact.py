@@ -87,7 +87,6 @@ def add_linkedin_contacts_and_save(df_company: pd.DataFrame):
                 ]
             ]
             df_contact = pd.concat([df_contact, df_row], ignore_index=True)
-            print("OKOKOK")
             df_contact.to_csv(CONTACT_FILE_PATH, sep=";", index=False)
             # Marquer le fichier comme existant pour les futures itérations
         else:

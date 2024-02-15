@@ -7,6 +7,9 @@ import ai_leads.ui.dash_app.utils as utils
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.components import navbar
 from ai_leads.ui.dash_app.pages import prospect_detail, prospect_list
+import pandas as pd
+from ai_leads.Config.param import LEAD_FILE_PATH
+from ai_leads.ui.dash_app.components import modify_prospect_form
 
 nav = navbar.navbar
 
@@ -43,6 +46,8 @@ def display_page(pathname):
 
 # Run the app on localhost:8050
 if __name__ == "__main__":
+    df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
+    df_final_result_leads["Entreprise"].apply(modify_prospect_form.callback_function_creation_boutton_tag_sale)
     app.run_server(
         debug=not bool(os.environ.get("PRODUCTION")),
         host="0.0.0.0",

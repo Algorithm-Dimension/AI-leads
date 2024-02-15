@@ -1,4 +1,5 @@
 import os
+from typing import List, Optional
 
 import dash_bootstrap_components as dbc
 import numpy as np
@@ -6,58 +7,67 @@ import pandas as pd
 from dash import dcc, html
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
-from unidecode import unidecode
 
-from ai_leads.Config.param import LEAD_FILE_PATH, LAST_UPDATE
+from ai_leads import utils
+
+# Local application imports
+from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import search_bar, update_button
+from ai_leads.ui.dash_app.components import add_contact, search_bar, update_button, component_card, filter_sales
 
+# Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
-# Data
 DATA_PATH = "data/"
+
+# Read and preprocess the data
 df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
 
-unique_is_contacted = ["Oui", "Non"]
-# Create a Dropdown component for selecting contact status
-global contact_dropdown
+# Dropdown options based on unique contact statuses
+unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
+
+# Dropdown component for selecting contact status
 contact_dropdown = dcc.Dropdown(
     id="contact-dropdown",
-    options=[
-        {"label": is_contacted, "value": is_contacted}
-        for is_contacted in unique_is_contacted
-        if not pd.isna(is_contacted)
-    ],
-    multi=True,  # Allow multiple selections
+    options=[{"label": status, "value": status} for status in unique_is_contacted if pd.notna(status)],
+    multi=True,
     placeholder="Contacté",
     style={"border-color": "#ECECEC"},
 )
 
 
 @app.callback(
-    Output("update-output", "children"),  # Update this if needed
+    Output("update-output", "children"),
     Input("update-button", "n_clicks"),
     State({"type": "contacted-output", "index": ALL}, "value"),
 )
-def update_dataframe(n_clicks, checkbox_states):
+def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> None:
+    """
+    Update the dataframe 'Contacté' column based on the checkbox state and save it to CSV.
+
+    :param n_clicks: Number of times the update button was clicked.
+    :param checkbox_states: List of states for each 'Contacté' checkbox.
+    """
     if n_clicks is None or n_clicks < 1:
         raise PreventUpdate
+
     for company, state in zip(df_final_result_leads["Entreprise"], checkbox_states):
+        # Normalize company name for matching
+        normalized_company = utils.clean_str_unidecode(company)
         df_final_result_leads.loc[
-            df_final_result_leads["Entreprise"].apply(lambda x: unidecode(x)) == unidecode(company), "Contacté"
+            df_final_result_leads["Entreprise"].apply(utils.clean_str_unidecode) == normalized_company, "Contacté"
         ] = ("Oui" if state else "Non")
 
     # Save the updated DataFrame
     df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=";", index=False)
 
-    return
-
 
 @app.callback(
-    Output("university-list", "children"),
+    Output("leads-list", "children"),
     State("search-input", "value"),
     Input("contact-dropdown", "value"),
+    Input("filter-sales-dropdown", "value"),
     # Input("state-dropdown", "value"),
     # Input("segment-dropdown", "value"),
     Input("search-button", "n_clicks"),
@@ -66,6 +76,7 @@ def update_dataframe(n_clicks, checkbox_states):
 def update_prospect_list(
     search_term="",
     selected_is_contacted=None,
+    selected_sales=None,
     n_clicks_search_button=0,
     n_submit_search_input=0,
 ):
@@ -83,7 +94,7 @@ def update_prospect_list(
         ],
         multi=True,  # Allow multiple selections
         placeholder="Sélectionnez le statut",
-        style={"border-color": "#ECECEC"},
+        style={"border-color": "#FFFFFF"},
     )
     if search_term:
         # Filter based on the search term
@@ -93,130 +104,36 @@ def update_prospect_list(
     else:
         # Select all prospects if no search term is provided
         filtered_prospects = df_final_result_leads
-    """
-    # Filter prospect based on selected food providers
-    if selected_food_providers:
-        filtered_prospects = filtered_prospects[filtered_prospects["foodProviderLLM"].isin(selected_food_providers)]"""
-
-    """
-    # Filter prospect based on selected states
-    if selected_states:
-        filtered_prospects = filtered_prospects[filtered_prospects["state"].isin(selected_states)]"""
-
-    """
-    # Filter prospect based on selected states
-    if selected_segments:
-        filtered_prospects = filtered_prospects[filtered_prospects["segment"].isin(selected_segments)]"""
 
     # Filter prospect based on selected states
     if selected_is_contacted:
         filtered_prospects = filtered_prospects[filtered_prospects["Contacté"].isin(selected_is_contacted)]
 
+    if selected_sales:
+        filtered_prospects = filtered_prospects[filtered_prospects["attributed_sale"].isin(selected_sales)]
     # Create prospect cards with an 'Overview' button
-    prospect_cards = []
-    for client, nb_offer, already_contacted, website_url in zip(
-        filtered_prospects["Entreprise"],
-        filtered_prospects["Nombre d'offres postés les 10 derniers jours"],
-        filtered_prospects["Contacté"],
-        filtered_prospects["website_url"],
+    prospect_cards_none = []
+    prospect_cards_flex = []
+    for client, nb_offer, already_contacted, website_url, attributed_sale in zip(
+        df_final_result_leads["Entreprise"],
+        df_final_result_leads["Nombre d'offres postés les 10 derniers jours"],
+        df_final_result_leads["Contacté"],
+        df_final_result_leads["website_url"],
+        df_final_result_leads["attributed_sale"],
     ):
-        contacted_checked = already_contacted == "Oui"
-        prospect_cards.append(
-            dbc.Card(
-                # [
-                # dbc.CardHeader(
-                #         html.Strong(client, style={"color": "#343a40"}),  # Couleur de texte personnalisée
-                #         style={"backgroundColor": "#f8f9fa", "borderBottom": "1px solid #dee2e6"},  # En-tête stylisé
-                #     ),
-                #     dbc.CardBody(
-                #         [
-                #             html.P(f"{city} - {state}", className="text-muted"),  # Classe de texte personnalisée
-                #             html.P(food_provider_text, style=food_provider_style),
-                #             dbc.Button(
-                #                 [
-                #                     "Overview ",  # Espace ajouté avant l'icône pour une meilleure esthétique
-                #                 ],
-                #                 href=f"/prospect_detail/{segment}_id_{id}",
-                #                 style={
-                #                     "backgroundColor": "#2255c5",  # Couleur de fond personnalisée
-                #                     "color": "white",
-                #                     "border": "none",
-                #                     "boxShadow": "0 4px 8px 0 rgba(0,0,0,0.2)",  # Ombre portée
-                #                     "transition": "0.3s",  # Animation de transition
-                #                 },
-                #                 className="my-2",  # Marges personnalisées (classe Bootstrap)
-                #             ),
-                #         ],
-                #         style={"padding": "20px"},  # Padding personnalisé
-                #     )],
-                [
-                    # html.Img(src=f"../assets/svg/{segment}.svg", style={"width": "auto", "height": "50px"}),
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    dbc.Col(
-                                        html.A(
-                                            client.title(),
-                                            href=website_url,
-                                        ),
-                                        style={
-                                            "text-decoration": "underline",
-                                            "cursor": "pointer",
-                                            "font-weight": "bold",
-                                            "font-size": "16px",
-                                        },
-                                    ),
-                                    dbc.Button(
-                                        [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                        href=f"/list_offers/{unidecode(client).replace(' ', '')}",
-                                        style={
-                                            "display": "flex",
-                                            "flex-direction": "row",
-                                            "align-items": "center",
-                                            "column-gap": "8px",
-                                        },
-                                    ),
-                                ],
-                                style={
-                                    "justify-content": "space-between",
-                                    "display": "flex",
-                                    "flex-direction": "row",
-                                    "align-items": "center",
-                                },
-                            ),
-                            html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
-                            html.P(f"À : Paris", style={"margin": "0"}),
-                            html.P(
-                                f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}", style={"margin": "0"}
-                            ),
-                            dbc.Checkbox(
-                                id={"type": "contacted-output", "index": ""},
-                                value=contacted_checked,
-                                label="Déjà Contacté ?",
-                            ),
-                        ],
-                        style={
-                            "display": "flex",
-                            "flex-direction": "column",
-                            "justify-content": "start",
-                            "row-gap": "10px",
-                            "flex-grow": "1",
-                        },
-                    ),
-                ],
-                style={
-                    "display": "flex",
-                    "flex-direction": "row",
-                    "column-gap": "20px",
-                    "borderRadius": "15px",
-                    "border-color": "#B71515",
-                    "boxShadow": "0 6px 20px 0 #0D234F14",
-                    "padding": "24px",
-                },  # Style de carte global
+        if client not in list(filtered_prospects["Entreprise"]):
+            display = "none"
+            component_card_section = component_card.component_card_function(
+                client, nb_offer, website_url, attributed_sale, display
             )
-        )
-
+            prospect_cards_none.append(component_card_section)
+        else:
+            display = "flex"
+            component_card_section = component_card.component_card_function(
+                client, nb_offer, website_url, attributed_sale, display
+            )
+            prospect_cards_flex.append(component_card_section)
+        prospect_cards = prospect_cards_flex + prospect_cards_none
     return prospect_cards
 
 
@@ -228,7 +145,7 @@ layout = html.Div(
                     html.Div(
                         [
                             html.H1(
-                                "Plateforme de leads pour Kara",
+                                "Plateforme de prospection pour Kara",
                                 style={"color": "#EEEEEE", "font-weight": "400", "text-shadow": "0px 0px 1px #000000"},
                             ),
                             html.H3(
@@ -255,17 +172,19 @@ layout = html.Div(
                 },
             ),
             style={
-                "height": "400px",
-                "background-image": "url('../assets/hero4.jpg')",
+                "height": "500px",
+                "background-image": "url('../assets/kara_banniere.jpg')",
                 "background-size": "cover",
                 "display": "flex",
                 "justify-content": "center",
                 "padding": "20px",
+                "padding-top": "300px",
             },
         ),
         html.Div(
             [
-                update_button.update_button,
+                # update_button.update_button,
+                add_contact.modal_new_contact,
                 html.Div(
                     [
                         html.Div(
@@ -280,11 +199,12 @@ layout = html.Div(
                                     },
                                 ),
                                 contact_dropdown,
+                                filter_sales.attributed_sale_dropdown,
                             ],
                             style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
                         ),
                         html.Div(
-                            id="university-list",
+                            id="leads-list",
                             style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
                         ),
                     ],
@@ -329,6 +249,7 @@ layout = html.Div(
             id="update-output",
             style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
         ),
+        # html.Div(id="container-for-badges"),
     ],
-    style={"display": "flex", "flex-direction": "column", "background-color": "#F7F7F7"},
+    style={"display": "flex", "flex-direction": "column", "background-color": "#FFFFFF"},
 )

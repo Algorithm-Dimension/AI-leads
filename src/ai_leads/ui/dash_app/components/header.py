@@ -3,7 +3,7 @@ from dash import dcc, html
 
 
 # Page header
-def header_prospect_detail(company: str, city: str, state: str, segment: str) -> dbc.Row:
+def header_prospect_detail(company: str, city: str = "", state: str = "", segment: str = "") -> dbc.Row:
     header_prospect_detail = dbc.Row(
         [
             dcc.Store(id="company-name-store", data=company),  # Add this line
