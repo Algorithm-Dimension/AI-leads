@@ -64,7 +64,7 @@ def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> No
 
 
 @app.callback(
-    Output("university-list", "children"),
+    Output("leads-list", "children"),
     State("search-input", "value"),
     Input("contact-dropdown", "value"),
     # Input("state-dropdown", "value"),
@@ -195,11 +195,12 @@ layout = html.Div(
                                     },
                                 ),
                                 contact_dropdown,
+                                filter_sales.attributed_sale_dropdown,
                             ],
                             style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
                         ),
                         html.Div(
-                            id="university-list",
+                            id="leads-list",
                             style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
                         ),
                     ],
