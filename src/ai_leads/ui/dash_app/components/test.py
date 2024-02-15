@@ -1,41 +1,59 @@
-from dash import Dash, html, Input, Output, callback_context
+from dash import Dash, html, dcc, Input, Output, callback_context, ALL
 import dash_bootstrap_components as dbc
-import dash
+import json
+from dash.exceptions import PreventUpdate
+from ai_leads.ui.dash_app.Config.param import COLOR_DICT_JOB_BOARD_BADGES, JOBS_PER_PAGE, COLOR_DICT_ATTRIBUTED_SALE
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-import dash_bootstrap_components as dbc
-from dash import Input, Output, State, html
+app = Dash(
+    __name__,
+    assets_folder="assets",
+    external_stylesheets=[
+        dbc.themes.BOOTSTRAP,
+        dbc.icons.BOOTSTRAP,
+        "https://use.fontawesome.com/releases/v5.8.1/css/all.css",
+    ],
+    meta_tags=[{"name": "viewport", "content": "width=device-width"}],
+    suppress_callback_exceptions=True,
+    title="Kara leads",
+)
 
-modal = html.Div(
+# Données de test pour les boutons
+
+attributed_tag_input = html.Div(
     [
-        dbc.Button("Open modal", id="open", n_clicks=0),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Header")),
-                dbc.ModalBody("This is the content of the modal"),
-                dbc.ModalFooter(dbc.Button("Close", id="close", className="ms-auto", n_clicks=0)),
-            ],
-            id="modal",
-            is_open=False,
-        ),
-    ]
+        html.Button(
+            f"Button {attributed_sale}",
+            id={"type": "add_attributed_sale", "index": attributed_sale},
+            n_clicks=0,
+            style={"margin": "5px", "backgroundColor": COLOR_DICT_ATTRIBUTED_SALE[attributed_sale]},
+        )
+        for attributed_sale in COLOR_DICT_ATTRIBUTED_SALE
+    ],
+    style={"padding": "20px"},
 )
 
 
 @app.callback(
-    [Output("modal", "is_open")],
-    [Input("open", "n_clicks"), Input("close", "n_clicks")],
-    [State("modal", "is_open")],
+    Output("output", "children"),
+    [Input({"type": "add_attributed_sale", "index": ALL}, "n_clicks")],
+    prevent_initial_call=True,
 )
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        print(is_open)
-        return [not is_open]
-    print(not is_open)
-    return [is_open]
+def on_button_click(n_clicks):
+    ctx = callback_context
+
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    # Obtenir l'identifiant du bouton déclencheur
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    button_id = json.loads(button_id)  # Convertir la chaîne de caractères en dictionnaire
+    index = button_id["index"]
+
+    return f"Button {index} was clicked"
 
 
-app.layout = html.Div(modal)
+app.layout = html.Div([attributed_tag_input, html.Div(id="output")])
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)

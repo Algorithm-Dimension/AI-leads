@@ -52,11 +52,11 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, dis
                                                     "margin-bottom": "5px",
                                                 },
                                             ),
-                                            html.Div(
-                                                [
-                                                    modify_prospect_form.modify_propsect_form_section_modal(company),
-                                                ]
-                                            ),
+                                            # html.Div(
+                                            #   [
+                                            #      modify_prospect_form.modify_prospect_form_section_modal(company),
+                                            # ]
+                                            # ),
                                         ]
                                     ),
                                 ),

@@ -27,9 +27,9 @@ def sort_df_by_date(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
     df: pd.DataFrame
     date_col: nale of the column with the date
     """
-    df["offer_date_converted"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    df.loc[:, "offer_date_converted"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
     # Crée une colonne temporaire pour identifier les lignes avec des chaînes de caractères
-    df["is_string"] = df["offer_date_converted"].isna()
+    df.loc[:, "is_string"] = df["offer_date_converted"].isna()
 
     # Trie le DataFrame :
     # 1. Les dates en ordre décroissant.

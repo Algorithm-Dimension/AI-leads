@@ -12,12 +12,13 @@ from dash import ALL, Input, Output, State, dcc, html, no_update
 from ai_leads import utils
 from ai_leads.Config.param import CONTACT_FILE_PATH, JOB_FILE_PATH, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
+from ai_leads.ui.dash_app.components import modify_prospect_form
 from ai_leads.ui.dash_app.components.header import header_prospect_detail
 from ai_leads.ui.dash_app.Config.param import COLOR_DICT_JOB_BOARD_BADGES, JOBS_PER_PAGE
 from ai_leads.ui.dash_app.utils import sort_df_by_date
 
 # from dash.dependencies import ALL, Input, Output, State, callback_context, dcc, html, no_update
-
+CURRENT_COMPANY = []
 
 df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";", dtype=str)[
     ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
@@ -271,6 +272,9 @@ def layout_function(company):
 
     # Container for the dynamic job list
     job_list_container = html.Div(id="job-list", children=initial_job_list)
+    # if company not in CURRENT_COMPANY:
+    # modify_prospect_form.callback_function_creation_boutton_tag_sale(company)
+    # CURRENT_COMPANY.append(company)
 
     layout = html.Div(
         children=[
@@ -286,6 +290,15 @@ def layout_function(company):
                             "paddingRight": "1rem",
                             "backgroundColor": bg_color,
                         },
+                    ),
+                    dbc.Accordion(
+                        dbc.AccordionItem(
+                            [
+                                modify_prospect_form.attributed_tag_input(company),
+                                html.Div(id="output-attributed_sale" + "-" + utils.clean_str_unidecode(company)),
+                            ],
+                            title="Information de travail",
+                        )
                     ),
                     dbc.Accordion(
                         dbc.AccordionItem(

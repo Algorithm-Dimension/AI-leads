@@ -13,14 +13,7 @@ from ai_leads import utils
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import (
-    add_contact,
-    sales_attributed_tags,
-    search_bar,
-    update_button,
-    component_card,
-)
-from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE
+from ai_leads.ui.dash_app.components import add_contact, search_bar, update_button, component_card, filter_sales
 
 # Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
