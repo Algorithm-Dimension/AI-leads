@@ -3,41 +3,39 @@ import dash_bootstrap_components as dbc
 import dash
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+import dash_bootstrap_components as dbc
+from dash import Input, Output, State, html
 
-app.layout = html.Div(
+modal = html.Div(
     [
-        html.Div(
+        dbc.Button("Open modal", id="open", n_clicks=0),
+        dbc.Modal(
             [
-                dbc.Button("Cliquez-moi", id={"type": "delete-button", "index": i}),
-                dbc.Badge("Contenu", id={"type": "content-div", "index": i}),
+                dbc.ModalHeader(dbc.ModalTitle("Header")),
+                dbc.ModalBody("This is the content of the modal"),
+                dbc.ModalFooter(dbc.Button("Close", id="close", className="ms-auto", n_clicks=0)),
             ],
-            id={"type": "container-div", "index": i},
-        )
-        for i in range(5)  # Supposons que vous ayez 5 paires de bouton et div
+            id="modal",
+            is_open=False,
+        ),
     ]
 )
 
 
 @app.callback(
-    Output({"type": "container-div", "index": dash.ALL}, "style"),
-    Input({"type": "delete-button", "index": dash.ALL}, "n_clicks"),
-    prevent_initial_call=True,  # Pour éviter que le callback ne se déclenche au chargement de la page
+    [Output("modal", "is_open")],
+    [Input("open", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")],
 )
-def hide_div(*args):
-    ctx = callback_context
-    if not ctx.triggered:
-        # Si rien n'a été déclenché, ne pas modifier le style
-        return dash.no_update
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        print(is_open)
+        return [not is_open]
+    print(not is_open)
+    return [is_open]
 
-    # Trouver l'identifiant du bouton qui a été cliqué
-    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    button_id = eval(button_id)  # Convertir la chaîne de caractères en dictionnaire
 
-    # Retourner le style pour cacher la `div` correspondante
-    return [
-        {"display": "none"} if button_id == {"type": "delete-button", "index": i} else dash.no_update for i in range(5)
-    ]
-
+app.layout = html.Div(modal)
 
 if __name__ == "__main__":
     app.run_server(debug=True)

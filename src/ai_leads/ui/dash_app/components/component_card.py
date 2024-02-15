@@ -5,9 +5,7 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 from dash import dcc, html
-from dash.dependencies import ALL, Input, Output, State
-from dash.exceptions import PreventUpdate
-from ai_leads.ui.dash_app.components import sales_attributed_tags
+from ai_leads.ui.dash_app.components import sales_attributed_tags, modify_prospect_form
 from ai_leads import utils
 
 # Local application imports
@@ -40,15 +38,27 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, dis
                                         ),
                                     )
                                 ),
-                                dbc.Button(
-                                    [html.Img(src="../assets/svg/eye.svg"), "Détail"],
-                                    href=f"/list_offers/{utils.clean_str_unidecode(company).replace(' ', '')}",
-                                    style={
-                                        "display": "flex",
-                                        "flex-direction": "row",
-                                        "align-items": "center",
-                                        "column-gap": "8px",
-                                    },
+                                dbc.Row(
+                                    dbc.Col(
+                                        [
+                                            dbc.Button(
+                                                [html.Img(src="../assets/svg/eye.svg"), "Détail"],
+                                                href=f"/list_offers/{utils.clean_str_unidecode(company).replace(' ', '')}",
+                                                style={
+                                                    "display": "flex",
+                                                    "flex-direction": "row",
+                                                    "align-items": "center",
+                                                    "column-gap": "8px",
+                                                    "margin-bottom": "5px",
+                                                },
+                                            ),
+                                            html.Div(
+                                                [
+                                                    modify_prospect_form.modify_propsect_form_section_modal(company),
+                                                ]
+                                            ),
+                                        ]
+                                    ),
                                 ),
                             ],
                             style={
