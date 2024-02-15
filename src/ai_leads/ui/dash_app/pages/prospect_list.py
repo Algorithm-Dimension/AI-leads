@@ -67,6 +67,7 @@ def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> No
     Output("leads-list", "children"),
     State("search-input", "value"),
     Input("contact-dropdown", "value"),
+    Input("filter-sales-dropdown", "value"),
     # Input("state-dropdown", "value"),
     # Input("segment-dropdown", "value"),
     Input("search-button", "n_clicks"),
@@ -75,6 +76,7 @@ def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> No
 def update_prospect_list(
     search_term="",
     selected_is_contacted=None,
+    selected_sales=None,
     n_clicks_search_button=0,
     n_submit_search_input=0,
 ):
@@ -107,6 +109,8 @@ def update_prospect_list(
     if selected_is_contacted:
         filtered_prospects = filtered_prospects[filtered_prospects["Contacté"].isin(selected_is_contacted)]
 
+    if selected_sales:
+        filtered_prospects = filtered_prospects[filtered_prospects["attributed_sale"].isin(selected_sales)]
     # Create prospect cards with an 'Overview' button
     prospect_cards_none = []
     prospect_cards_flex = []
@@ -179,7 +183,7 @@ layout = html.Div(
         ),
         html.Div(
             [
-                update_button.update_button,
+                # update_button.update_button,
                 add_contact.modal_new_contact,
                 html.Div(
                     [
