@@ -9,7 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium_recaptcha_solver import RecaptchaSolver
 
-from ai_leads.Config.param import N_PROBA, SPORT_WEBSITE_LIST, WAIT_TIME
+from ai_leads.Config.param import N_PROBA, SPORT_WEBSITE_LIST, WAIT_TIME, NB_DAY_NEW_RESEARCH
 
 # from selenium_recaptcha import Recaptcha_Solver
 
@@ -157,7 +157,7 @@ class WebpageScraper:
         return len(text) > threshold
 
     @staticmethod
-    def _linkedin_url(position: str, location: str) -> List[str]:
+    def _linkedin_url(position: str, location: str, nb_days: int = NB_DAY_NEW_RESEARCH) -> List[str]:
         """
         Function which returns the linkedin web page with job offers
         Args:
@@ -167,10 +167,13 @@ class WebpageScraper:
         Returns:
         - str: URL with job offer
         """
-        return [f"https://www.linkedin.fr/jobs/{position}-jobs-{location}/"]
+        nb_seconds = nb_days * 86400  # Nombre de seconde dans le filtre linkedin
+        return [
+            f"https://www.linkedin.com/jobs/search/?f_TPR=r{nb_seconds}&keywords={position}&location={location}&origin=JOB_SEARCH_PAGE_JOB_FILTER"
+        ]
 
     @staticmethod
-    def _indeed_url(position: str, location: str, number_pages=5) -> List[str]:
+    def _indeed_url(position: str, location: str, nb_days: int = NB_DAY_NEW_RESEARCH, number_pages=5) -> List[str]:
         """
         Function which returns the indeed web page with job offers
         Args:
@@ -181,7 +184,7 @@ class WebpageScraper:
         - str: URL with job offer
         """
         URL_list = [
-            f"https://fr.indeed.com/jobs?q={position}&l={location}&start={str(i)}"
+            f"https://fr.indeed.com/jobs?q={position}&l={location}&fromage={nb_days}&start={str(i)}"
             for i in [k * 10 for k in range(number_pages)]
         ]
         return URL_list

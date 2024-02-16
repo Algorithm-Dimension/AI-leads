@@ -46,6 +46,7 @@ OUTPUT_PARSER = None
 INDEED_NUMBER_PAGE = 3
 LINKEDIN_NUMBER_SCROLL = 10
 
+NB_DAY_NEW_RESEARCH = 3
 source_param = {
     "LinkedIn": [False, "https://www.linkedin.com/jobs/"],
     "Indeed": [True, """https://fr.indeed.com/q-{job}-l-{location}-emplois.html"""],
@@ -78,8 +79,8 @@ JOB_LIST_PIPELINE = [
     "Office Manager",
 ]
 
-# JOB_LIST_PIPELINE = ["Acheteur"]
-# SOURCE_LIST_PIPELINE = ["Indeed"]
+JOB_LIST_PIPELINE = ["Acheteur"]
+SOURCE_LIST_PIPELINE = ["Indeed"]
 
 LOCATION = "Paris"
 
@@ -89,8 +90,8 @@ DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
-LEAD_FILE_PATH = os.path.join("data", "leads_tests_tests_3_feb.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_3_feb.csv")
+LEAD_FILE_PATH = os.path.join("data", "leads_tests_15_feb.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_tests_15_feb.csv")
 COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 
