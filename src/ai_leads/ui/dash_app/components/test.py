@@ -1,8 +1,10 @@
-from dash import Dash, html, dcc, Input, Output, callback_context, ALL
-import dash_bootstrap_components as dbc
 import json
+
+import dash_bootstrap_components as dbc
+from dash import ALL, Dash, Input, Output, callback_context, dcc, html
 from dash.exceptions import PreventUpdate
-from ai_leads.ui.dash_app.Config.param import COLOR_DICT_JOB_BOARD_BADGES, JOBS_PER_PAGE, COLOR_DICT_ATTRIBUTED_SALE
+
+from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE, COLOR_DICT_JOB_BOARD_BADGES, JOBS_PER_PAGE
 
 app = Dash(
     __name__,

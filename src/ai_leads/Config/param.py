@@ -6,7 +6,6 @@ import pandas as pd
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.output_parsers.enum import EnumOutputParser
 
-
 ZEPHYR_URL = "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/blob/main/zephyr-7b-beta.Q5_K_M.gguf"
 ZEPHYR_NAME = "zephyr-7b-beta.Q5_K_M.gguf"
 

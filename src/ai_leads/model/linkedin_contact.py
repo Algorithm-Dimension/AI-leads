@@ -1,7 +1,7 @@
 import logging
 import re
-from typing import List
 import urllib.parse
+from typing import List
 
 import numpy as np
 

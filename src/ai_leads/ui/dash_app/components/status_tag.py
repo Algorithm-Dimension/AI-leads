@@ -2,19 +2,16 @@ import json
 from typing import List, Optional
 
 import dash_bootstrap_components as dbc
-from dash import html, no_update
 import numpy as np
 import pandas as pd
-from dash import html, callback_context
-
+from dash import callback_context, html, no_update
 from dash.dependencies import ALL, MATCH, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from ai_leads.Config.param import LEAD_FILE_PATH, COMPANY_FILE_PATH
+from ai_leads import utils
+from ai_leads.Config.param import COMPANY_FILE_PATH, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.Config.param import COLOR_DICT_STATUS
-from ai_leads import utils
-
 
 # Supposons que df_lead est déjà chargé
 df_lead = pd.read_csv(LEAD_FILE_PATH, sep=";", dtype=str)

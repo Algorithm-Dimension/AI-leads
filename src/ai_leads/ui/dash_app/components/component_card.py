@@ -5,11 +5,11 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 from dash import dcc, html
-from ai_leads.ui.dash_app.components import sales_attributed_tags, status_tag, modify_prospect_form
-from ai_leads import utils
 
+from ai_leads import utils
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE
+from ai_leads.ui.dash_app.components import modify_prospect_form, sales_attributed_tags, status_tag
 
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
 

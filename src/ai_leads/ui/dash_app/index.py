@@ -1,16 +1,15 @@
 import os
 
+import pandas as pd
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
 import ai_leads.ui.dash_app.utils as utils
-from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import navbar
-from ai_leads.ui.dash_app.pages import prospect_detail, prospect_list
-from ai_leads.ui.dash_app.components.modify_prospect_form import CURRENT_COMPANY_TAG_STATUS
-import pandas as pd
 from ai_leads.Config.param import LEAD_FILE_PATH
-from ai_leads.ui.dash_app.components import modify_prospect_form
+from ai_leads.ui.dash_app.app import app
+from ai_leads.ui.dash_app.components import modify_prospect_form, navbar
+from ai_leads.ui.dash_app.components.modify_prospect_form import CURRENT_COMPANY_TAG_STATUS
+from ai_leads.ui.dash_app.pages import prospect_detail, prospect_list
 
 nav = navbar.navbar
 

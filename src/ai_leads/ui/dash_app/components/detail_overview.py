@@ -1,11 +1,12 @@
 import dash_bootstrap_components as dbc
-from ai_leads import utils
-from ai_leads.ui.dash_app.app import app
+import pandas as pd
+from dash import callback_context, html, no_update
 from dash.dependencies import ALL, MATCH, Input, Output, State
 from dash.exceptions import PreventUpdate
-import pandas as pd
+
+from ai_leads import utils
 from ai_leads.Config.param import LEAD_FILE_PATH
-from dash import html, no_update, callback_context
+from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.pages import prospect_detail
 
 

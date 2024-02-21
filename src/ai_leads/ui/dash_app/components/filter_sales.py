@@ -1,4 +1,5 @@
 from dash import dcc
+
 from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE
 
 # Dropdown component for selecting contact status

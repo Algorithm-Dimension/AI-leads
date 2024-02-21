@@ -1,13 +1,15 @@
+import json
+
 import dash_bootstrap_components as dbc
-from ai_leads import utils
-from ai_leads.ui.dash_app.app import app
+import pandas as pd
+from dash import callback_context, html, no_update
 from dash.dependencies import ALL, MATCH, Input, Output, State
 from dash.exceptions import PreventUpdate
-import pandas as pd
-from ai_leads.Config.param import LEAD_FILE_PATH, COMPANY_FILE_PATH
-from dash import html, no_update, callback_context
+
+from ai_leads import utils
+from ai_leads.Config.param import COMPANY_FILE_PATH, LEAD_FILE_PATH
+from ai_leads.ui.dash_app.app import app
 from ai_leads.ui.dash_app.Config.param import COLOR_DICT_ATTRIBUTED_SALE, COLOR_DICT_STATUS
-import json
 
 CURRENT_COMPANY_TAG_SALE = []
 CURRENT_COMPANY_TAG_STATUS = []

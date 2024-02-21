@@ -13,7 +13,7 @@ from ai_leads import utils
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import add_contact, search_bar, update_button, component_card, filter_sales
+from ai_leads.ui.dash_app.components import add_contact, component_card, filter_sales, search_bar, filter_status
 
 # Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
@@ -23,18 +23,6 @@ DATA_PATH = "data/"
 df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
 df_final_result_leads.replace("n.a.", np.nan, inplace=True)
 df_final_result_leads.dropna(subset=["Entreprise"], inplace=True)
-
-# Dropdown options based on unique contact statuses
-unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
-
-# Dropdown component for selecting contact status
-contact_dropdown = dcc.Dropdown(
-    id="contact-dropdown",
-    options=[{"label": status, "value": status} for status in unique_is_contacted if pd.notna(status)],
-    multi=True,
-    placeholder="Contacté",
-    style={"border-color": "#ECECEC"},
-)
 
 
 @app.callback(
@@ -66,7 +54,7 @@ def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> No
 @app.callback(
     Output("leads-list", "children"),
     State("search-input", "value"),
-    Input("contact-dropdown", "value"),
+    Input("filter-status-dropdown", "value"),
     Input("filter-sales-dropdown", "value"),
     # Input("state-dropdown", "value"),
     # Input("segment-dropdown", "value"),
@@ -81,21 +69,7 @@ def update_prospect_list(
     n_submit_search_input=0,
 ):
     df_final_result_leads = pd.read_csv(os.path.join(LEAD_FILE_PATH), sep=";")
-    # Get unique food providers
-    unique_is_contacted = df_final_result_leads["Contacté"].unique().tolist()
-    # Create a Dropdown component for selecting food providers
-    global contact_dropdown
-    contact_dropdown = dcc.Dropdown(
-        id="contact-dropdown",
-        options=[
-            {"label": is_contacted, "value": is_contacted}
-            for is_contacted in unique_is_contacted
-            if not pd.isna(is_contacted)
-        ],
-        multi=True,  # Allow multiple selections
-        placeholder="Sélectionnez le statut",
-        style={"border-color": "#FFFFFF"},
-    )
+
     if search_term:
         # Filter based on the search term
         filtered_prospects = df_final_result_leads.loc[
@@ -107,17 +81,16 @@ def update_prospect_list(
 
     # Filter prospect based on selected states
     if selected_is_contacted:
-        filtered_prospects = filtered_prospects[filtered_prospects["Contacté"].isin(selected_is_contacted)]
+        filtered_prospects = filtered_prospects[filtered_prospects["status"].isin(selected_is_contacted)]
 
     if selected_sales:
         filtered_prospects = filtered_prospects[filtered_prospects["attributed_sale"].isin(selected_sales)]
     # Create prospect cards with an 'Overview' button
     prospect_cards_none = []
     prospect_cards_flex = []
-    for client, nb_offer, already_contacted, website_url, attributed_sale, status in zip(
+    for client, nb_offer, website_url, attributed_sale, status in zip(
         df_final_result_leads["Entreprise"],
         df_final_result_leads["Nombre d'offres postés les 10 derniers jours"],
-        df_final_result_leads["Contacté"],
         df_final_result_leads["website_url"],
         df_final_result_leads["attributed_sale"],
         df_final_result_leads["status"],
@@ -199,7 +172,7 @@ layout = html.Div(
                                         "align-items": "baseline",
                                     },
                                 ),
-                                contact_dropdown,
+                                filter_status.attributed_status_dropdown,
                                 filter_sales.attributed_sale_dropdown,
                             ],
                             style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
