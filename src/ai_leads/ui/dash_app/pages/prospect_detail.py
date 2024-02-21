@@ -296,6 +296,8 @@ def layout_function(company):
                             [
                                 modify_prospect_form.attributed_tag_input(company),
                                 html.Div(id="output-attributed_sale" + "-" + utils.clean_str_unidecode(company)),
+                                modify_prospect_form.status_tag_input(company),
+                                html.Div(id="output-status" + "-" + utils.clean_str_unidecode(company)),
                             ],
                             title="Information de travail",
                         )

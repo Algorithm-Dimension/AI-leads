@@ -114,23 +114,24 @@ def update_prospect_list(
     # Create prospect cards with an 'Overview' button
     prospect_cards_none = []
     prospect_cards_flex = []
-    for client, nb_offer, already_contacted, website_url, attributed_sale in zip(
+    for client, nb_offer, already_contacted, website_url, attributed_sale, status in zip(
         df_final_result_leads["Entreprise"],
         df_final_result_leads["Nombre d'offres postés les 10 derniers jours"],
         df_final_result_leads["Contacté"],
         df_final_result_leads["website_url"],
         df_final_result_leads["attributed_sale"],
+        df_final_result_leads["status"],
     ):
         if client not in list(filtered_prospects["Entreprise"]):
             display = "none"
             component_card_section = component_card.component_card_function(
-                client, nb_offer, website_url, attributed_sale, display
+                client, nb_offer, website_url, attributed_sale, status, display
             )
             prospect_cards_none.append(component_card_section)
         else:
             display = "flex"
             component_card_section = component_card.component_card_function(
-                client, nb_offer, website_url, attributed_sale, display
+                client, nb_offer, website_url, attributed_sale, status, display
             )
             prospect_cards_flex.append(component_card_section)
         prospect_cards = prospect_cards_flex + prospect_cards_none

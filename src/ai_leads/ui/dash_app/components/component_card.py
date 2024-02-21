@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 from dash import dcc, html
-from ai_leads.ui.dash_app.components import sales_attributed_tags, modify_prospect_form
+from ai_leads.ui.dash_app.components import sales_attributed_tags, status_tag, modify_prospect_form
 from ai_leads import utils
 
 # Local application imports
@@ -14,8 +14,9 @@ from ai_leads.Config.param import LAST_UPDATE
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
 
 
-def component_card_function(company, nb_offer, website_url, attributed_sale, display="flex"):
-    component_tag = sales_attributed_tags.tag_component(attributed_sale, company)
+def component_card_function(company, nb_offer, website_url, attributed_sale, status, display="flex"):
+    component_tag_attributed_sales = sales_attributed_tags.tag_component_attributed_sales(attributed_sale, company)
+    component_tag_status = status_tag.tag_component_status(status, company)
     component_card = html.Div(
         dbc.Card(
             [
@@ -24,7 +25,7 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, dis
                         html.Div(
                             [
                                 dbc.Row(
-                                    dbc.Col(
+                                    [
                                         html.A(
                                             company.title(),
                                             href=website_url,
@@ -36,7 +37,8 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, dis
                                                 "font-size": "16px",
                                             },
                                         ),
-                                    )
+                                        component_tag_status,
+                                    ]
                                 ),
                                 dbc.Row(
                                     dbc.Col(
@@ -73,11 +75,7 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, dis
                             f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}",
                             style={"margin": "0"},
                         ),
-                        dbc.Checkbox(
-                            id={"type": "contacted-output", "index": ""},
-                            label="Déjà Contacté ?",
-                        ),
-                        component_tag,
+                        component_tag_attributed_sales,
                     ],
                     style={
                         "display": "flex",
