@@ -16,3 +16,11 @@ COLOR_DICT_ATTRIBUTED_SALE = {
     "Judith": "dark",
     "Alexandra": "danger",
 }
+
+COLOR_DICT_STATUS = {
+    "Client": "success",
+    "Prospect": "warning",
+    "À recontacter": "danger",
+    "Contacté": "info",
+    "Pas intéressant": "secondary",
+}

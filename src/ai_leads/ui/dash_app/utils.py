@@ -3,8 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from ai_leads.Config.param import LEAD_FILE_PATH
 from ai_leads import utils
+from ai_leads.Config.param import LEAD_FILE_PATH
 
 # Data
 DATA_PATH = "data/"

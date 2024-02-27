@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def read_csv_file(file_path, sep=";"):
+def read_csv_file(file_path: str, sep=";") -> pd.DataFrame:
     """Lire un fichier CSV et retourner un DataFrame."""
     try:
         return pd.read_csv(file_path, sep=sep)
@@ -20,14 +20,14 @@ def read_csv_file(file_path, sep=";"):
         raise
 
 
-def convert_jobs_to_leads(df_jobs, time_window):
+def convert_jobs_to_leads(df_jobs: pd.DataFrame, time_window: int) -> pd.DataFrame:
     """Convertir les données des offres d'emploi en prospects."""
     df_jobs.drop_duplicates(subset=["job name", "company", "location", "offer date", "source"], inplace=True)
     dfConverter = LeadDataFrameConverter(df_jobs)
     return dfConverter.convert_to_lead_dataframe(time_window=time_window)
 
 
-def merge_leads_with_companies(df_leads, df_company_list):
+def merge_leads_with_companies(df_leads: pd.DataFrame, df_company_list: pd.DataFrame) -> pd.DataFrame:
     """Fusionner les données des prospects avec les informations des entreprises."""
     df_leads["company_join"] = df_leads["Entreprise"].apply(utils.clean_str_unidecode)
     df_company_list["company_join"] = df_company_list["company"].apply(utils.clean_str_unidecode)
@@ -36,12 +36,14 @@ def merge_leads_with_companies(df_leads, df_company_list):
     return df_merged
 
 
-def filter_leads_by_activity(df_leads):
+def filter_leads_by_activity(df_leads: pd.DataFrame) -> pd.DataFrame:
     """Filtrer les prospects en excluant certains secteurs d'activité."""
-    return df_leads.loc[df_leads["activity_sector"] != CompanyActivity.RECRUITING.value]
+    return df_leads.loc[
+        ~df_leads["activity_sector"].isin([CompanyActivity.RECRUITING.value, CompanyActivity.FORMATION_ECOLE.value])
+    ]
 
 
-def save_to_csv(df, file_path, sep=";"):
+def save_to_csv(df: pd.DataFrame, file_path: str, sep: str = ";"):
     """Sauvegarder un DataFrame dans un fichier CSV."""
     try:
         df.to_csv(file_path, sep=sep, index=False)
