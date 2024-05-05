@@ -21,10 +21,9 @@ TEMPLATE = """
             - time indication (publication or last modification. e.g. il y a 2 jours,  aujourd'hui, il y a 1 semaine, 2 days ago …): 
             - contact (an email address or a phone number)
             Write N.A. when the information is not available.
-            Exclude the companies that are recruitment companies
 
-            The only output is a csv file (sep = ";")
-            (no other text)
+            The ONLY output is a csv file (sep = ";")
+            NOT ANY OTHER TEXT, NO ADDITIONAL REMARK
 
             url text: {html_raw_code}.
             """
@@ -77,8 +76,8 @@ JOB_LIST_PIPELINE = [
     "Office Manager",
 ]
 
-# JOB_LIST_PIPELINE = ["Acheteur"]
-# SOURCE_LIST_PIPELINE = ["Indeed"]
+JOB_LIST_PIPELINE = ["Acheteur"]
+SOURCE_LIST_PIPELINE = ["Indeed"]
 
 LOCATION = "Paris"
 
@@ -89,7 +88,7 @@ DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
 LEAD_FILE_PATH = os.path.join("data", "leads_tests_tests_3_feb.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_3_feb.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_tests_5_may.csv")
 COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 

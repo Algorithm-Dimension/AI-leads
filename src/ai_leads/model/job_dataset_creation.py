@@ -65,11 +65,11 @@ class JobDataFrameCreator(LLMManager):
                 partial_vars={"format_instructions": format_instructions},
             )
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-            return output_parser.parse(response)
+            return response.content
         else:
             prompt = self.prepare_prompt(template=template, input_vars=variable_list)
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-            return response
+            return response.content
 
     def create_table_with_job(self, url: str, platform: str) -> pd.DataFrame:
         """

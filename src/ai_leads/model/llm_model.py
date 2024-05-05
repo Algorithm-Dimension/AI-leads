@@ -2,9 +2,10 @@ import logging
 
 import tiktoken
 from dotenv import load_dotenv
-from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_core.messages.ai import AIMessage
+from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
+from langchain_groq import ChatGroq
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +25,8 @@ class LLMManager:
     def __init__(self, model_name: str = "gpt-3.5-turbo-16k", temperature: float = 0.0):
         """Initialize the LLMManager with a model."""
         load_dotenv()
-        self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
+        # self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
+        self.llm = ChatGroq(temperature=0, model_name="llama3-8b-8192")
 
     def prepare_prompt(self, template: str, input_vars: list = [], partial_vars: dict = {}) -> PromptTemplate:
         """
@@ -40,7 +42,7 @@ class LLMManager:
         """
         return PromptTemplate(template=template, input_variables=input_vars, partial_variables=partial_vars)
 
-    def run_llm_chain(self, prompt: PromptTemplate, **input_vars) -> dict:
+    def run_llm_chain(self, prompt: PromptTemplate, **input_vars) -> AIMessage:
         """
         Runs an LLMChain and returns the response.
 
@@ -51,8 +53,9 @@ class LLMManager:
         Returns:
         dict: response from LLMChain.run()
         """
-        llm_chain = LLMChain(prompt=prompt, llm=self.llm)
-        return llm_chain.run(**input_vars)
+        llm_chain = prompt | self.llm
+        invoke_params = {key: value for key, value in input_vars.items()}
+        return llm_chain.invoke(invoke_params)
 
     def return_prompt_beginning(self, prompt: str, encoding_name: str = DEFAULT_ENCODING_NAME) -> list:
         """Return the beggining of a prompt if too long.

@@ -1,9 +1,9 @@
 Entreprise;source;Nombre d'offres postés les 10 derniers jours;Contacté;Notes;website_url;activity_sector;attributed_sale;status
-Armée De L'Air Et De L'Espace;Cadre EmploiCadre Emploi;13;Non;;https://www.defense.gouv.fr/air;Other;Esther;Pas intéressant
+Armée De L'Air Et De L'Espace;Cadre EmploiCadre Emploi;13;Non;;https://www.defense.gouv.fr/air;Other;Alexandra;Contacté
 Groupe Kering;IndeedIndeed;10;Non;;https://www.kering.com/fr/groupe/;Other;;Prospect
 Galeries Lafayette;Hello WorkIndeed;8;Oui;;https://www.galerieslafayette.com/;Other;Barbara;Pas intéressant
 Chanel;Indeed;8;Non;;https://www.chanel.com/fr/;Other;;Client
-Louis Vuitton;IndeedIndeed;7;Non;;https://fr.louisvuitton.com/fra-fr/homepage;Other;;Client
+Louis Vuitton;IndeedIndeed;7;Non;;https://fr.louisvuitton.com/fra-fr/homepage;Other;Esther;Client
 Nestenn Immobilier;Cadre EmploiCadre Emploi;6;Non;;https://nestenn.com/;Other;;Prospect
 Armée De Terre Française;Cadre Emploi;5;Non;;https://www.defense.gouv.fr/terre;Other;;Contacté
 Florence Dore Sa;Hello Work;5;;;http://www.florencedore.fr/;Other;;
@@ -11,9 +11,8 @@ E.Leclerc;LinkedInIndeed;4;Non;;https://www.e.leclerc/;Other;;
 Groupama Gan Vie;Cadre Emploi;4;;;https://www.groupama.com/fr/fiche/groupama-gan-vie/;Other;;
 Rothschild & Co;LinkedInIndeed;4;Non;;https://www.rothschildandco.com/fr/;Other;;
 Printemps;Indeed;4;Non;;https://www.printemps.com/fr/fr;Other;;
-Chantelle;LinkedInLinkedIn;3;;;https://chantelle.com/fr;Other;;
+Chantelle;LinkedInLinkedIn;3;;OKOKOK;https://chantelle.com/fr;Other;;
 Charleen;Hello Work;3;;;https://www.charleen.fr/;Other;;
-N.A.;Hello WorkHello Work;3;;;https://en.wikipedia.org/wiki/Na;Other;;
 Théma Services;Indeed;3;Non;;https://www.thema-services.fr/;Other;;
 Sephora;LinkedInIndeed;3;Non;;https://www.sephora.fr/;Other;;
 Le Groupe La Poste;IndeedIndeed;3;Non;;https://www.lapostegroupe.com/fr;Other;;

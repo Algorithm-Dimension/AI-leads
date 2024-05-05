@@ -1,7 +1,7 @@
 company;Contacté;Notes;website_url;activity_sector;attributed_sale;status
 iscod;Non;;https://www.iscod.fr/;Formation/Education;Alexandra;Prospect
 partners consulting;Non;;https://www.partnersconsulting-of.com/page-de-maintenance/;Other;;
-armée de l'air et de l'espace;Non;;https://www.defense.gouv.fr/air;Other;Esther;Pas intéressant
+armée de l'air et de l'espace;Non;;https://www.defense.gouv.fr/air;Other;Alexandra;Contacté
 galeries lafayette;Oui;;https://www.galerieslafayette.com/;Other;Barbara;Pas intéressant
 aureïs formation;Oui;;https://www.aureisformation.fr/;Formation/Education;Rachel;Contacté
 chanel;Non;;https://www.chanel.com/fr/;Other;;Client
@@ -9,7 +9,7 @@ grant thornton france;Non;;https://www.grantthornton.fr/fr/;Other;;
 groupe kering;Non;;https://www.kering.com/fr/groupe/;Other;;Prospect
 institut f2i;Non;;https://www.institut-f2i.fr/;Formation/Education;Barbara;
 groupe igf;Non;;https://www.groupeigf.com/;Formation/Education;;
-louis vuitton;Non;;https://fr.louisvuitton.com/fra-fr/homepage;Other;;Client
+louis vuitton;Non;;https://fr.louisvuitton.com/fra-fr/homepage;Other;Esther;Client
 armée de terre française;Non;;https://www.defense.gouv.fr/terre;Other;;Contacté
 société générale;Non;;https://particuliers.sg.fr/;Other;;
 ifcv;Non;;https://www.ifcv.fr/;Formation/Education;;
@@ -577,7 +577,7 @@ Assisteal Formation;;;https://www.assisteal.fr/;Formation/Education;;
 Sacd;;;https://sacd.fr/fr;Other;;
 Join.Com;;;https://join.com/;Recruitment;;
 Kärcher;;;https://www.kaercher.com/fr/;Other;;
-Chantelle;;;https://chantelle.com/fr;Other;;
+Chantelle;;;https://chantelle.com/fr;Other;Rachel;Pas intéressant
 Mediawan;;;https://mediawan.com/en;Other;;
 Ism Interprétariat;;;https://ism-interpretariat.fr/;Other;;
 Hotellery Recrutement;;;https://fr.linkedin.com/company/hotellery;Recruitment;;
