@@ -6,6 +6,7 @@ from langchain_core.messages.ai import AIMessage
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_groq import ChatGroq
+from ai_leads.Config.param import MODEL_NAME, DEFAULT_ENCODING_NAME, CONTEXT_WINDOW, DEFAULT_RESEARCH_TYPE_THRESHOLD
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -13,20 +14,18 @@ logger = logging.getLogger(__name__)
 
 # Move the API key to environment variables for security reasons
 # os.environ["OPENAI_API_KEY"] = API_KEY_RAPH
-# Constants
-DEFAULT_ENCODING_NAME = "cl100k_base"
-CONTEXT_WINDOW = 16385
-DEFAULT_RESEARCH_TYPE_THRESHOLD = 2
 
 # Setup logging
 
 
 class LLMManager:
-    def __init__(self, model_name: str = "gpt-3.5-turbo-16k", temperature: float = 0.0):
+    def __init__(self, model_name: str = MODEL_NAME, temperature: float = 0.0):
         """Initialize the LLMManager with a model."""
         load_dotenv()
-        # self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
-        self.llm = ChatGroq(temperature=0, model_name="llama3-8b-8192")
+        if model_name == "llama3-8b-8192":
+            self.llm = ChatGroq(temperature=0, model_name=model_name)
+        elif MODEL_NAME == "gpt-3.5-turbo-16k":
+            self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
 
     def prepare_prompt(self, template: str, input_vars: list = [], partial_vars: dict = {}) -> PromptTemplate:
         """
