@@ -7,15 +7,24 @@ import pandas as pd
 from dash import dcc, html
 
 from ai_leads import utils
+
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE
-from ai_leads.ui.dash_app.components import modify_prospect_form, sales_attributed_tags, status_tag
+from ai_leads.ui.dash_app.components import (
+    modify_prospect_form,
+    sales_attributed_tags,
+    status_tag,
+)
 
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
 
 
-def component_card_function(company, nb_offer, website_url, attributed_sale, status, display="flex"):
-    component_tag_attributed_sales = sales_attributed_tags.tag_component_attributed_sales(attributed_sale, company)
+def component_card_function(
+    company, nb_offer, website_url, attributed_sale, status, display="flex"
+):
+    component_tag_attributed_sales = (
+        sales_attributed_tags.tag_component_attributed_sales(attributed_sale, company)
+    )
     component_tag_status = status_tag.tag_component_status(status, company)
     component_card = html.Div(
         dbc.Card(
@@ -44,7 +53,12 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, sta
                                     dbc.Col(
                                         [
                                             dbc.Button(
-                                                [html.Img(src="../assets/svg/eye.svg"), "Détail"],
+                                                [
+                                                    html.Img(
+                                                        src="../assets/svg/eye.svg"
+                                                    ),
+                                                    "Détail",
+                                                ],
                                                 href=f"/list_offers/{utils.clean_str_unidecode(company).replace(' ', '')}",
                                                 style={
                                                     "display": "flex",
@@ -70,7 +84,10 @@ def component_card_function(company, nb_offer, website_url, attributed_sale, sta
                                 "align-items": "center",
                             },
                         ),
-                        html.P(["Denière mise à jour: le ", BASE_DATE_STR], style={"margin": "0"}),
+                        html.P(
+                            ["Denière mise à jour: le ", BASE_DATE_STR],
+                            style={"margin": "0"},
+                        ),
                         html.P(
                             f"Nombre d'offre postées les 10 derniers jours : {str(nb_offer)}",
                             style={"margin": "0"},

@@ -82,16 +82,19 @@ class LinkedInContactRetriever:
         try:
             # Decode the URL to handle special characters
             decoded_url = urllib.parse.unquote(url)
-
+            # Remove all the numbers from the URL
+            decoded_url = re.sub(r"\d+", "", decoded_url)
             # Extract the first and last name using regular expressions
-            match = re.search(r"/in/([^/]+)-([^/]+)-\w+", decoded_url)
+            match = re.search(r"/in/([^/]+)-([^/]+)/?", decoded_url)
 
             if match:
-                first_name = match.group(1)
-                last_name = match.group(2)
+                first_name = match.group(1).strip("-")
+                last_name = match.group(2).strip("-")
             else:
-                first_name = ""
-                last_name = ""
+                decoded_url_list = decoded_url.split("/")
+                index_in = decoded_url_list.index("in")
+                first_name = decoded_url_list[index_in + 1]
+                last_name = " "
             return [first_name.title(), last_name.title()]
         except Exception:
             return ["", ""]
