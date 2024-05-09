@@ -97,9 +97,13 @@ class WebpageScraper:
                 self.scroll(driver, num_scrolls=10, scroll_pause_time=2)
             html_content = driver.page_source
             if self.check_if_blocked_by_captcha(html_content):
-                self.solve_recaptcha_v2(driver)
+                try:
+                    self.solve_recaptcha_v2(driver)
+                    self.random_waiting_time()
+                    logger.info("Captcha successfully solved")
+                except Exception:
+                    pass
                 html_content = driver.page_source
-            self.random_waiting_time()
             return html_content
         except Exception as error:
             logger.info("An error occured: %s", error)

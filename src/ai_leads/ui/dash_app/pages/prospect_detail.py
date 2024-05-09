@@ -21,7 +21,7 @@ from ai_leads.ui.dash_app.utils import sort_df_by_date
 CURRENT_COMPANY = []
 
 df_jobs = pd.read_csv(os.path.join(JOB_FILE_PATH), sep=";", dtype=str)[
-    ["job name", "company", "location", "offer date", "contact", "position", "source", "url"]
+    ["job name", "company", "location", "offer date", "position", "source", "url"]
 ]
 df_jobs.replace(["n.a.", "N.A."], np.nan, inplace=True)
 df_jobs["company"] = df_jobs["company"].astype(str)

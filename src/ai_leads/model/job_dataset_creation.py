@@ -65,11 +65,11 @@ class JobDataFrameCreator(LLMManager):
                 partial_vars={"format_instructions": format_instructions},
             )
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-            return output_parser.parse(response)
+            return response.content
         else:
             prompt = self.prepare_prompt(template=template, input_vars=variable_list)
             response = self.run_llm_chain(prompt, url=url, html_raw_code=html_raw_code)
-            return response
+            return response.content
 
     def create_table_with_job(self, url: str, platform: str) -> pd.DataFrame:
         """
@@ -81,24 +81,33 @@ class JobDataFrameCreator(LLMManager):
         Returns:
         pd.DataFrame: job listings table
         """
-
         df = pd.DataFrame()
         template = TEMPLATE
         output_parser = OUTPUT_PARSER
         html_raw_code_full = self.scraper.fetch_readable_text(url)
         html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
+
         response = self._find_job_list_url(url, html_raw_code, template, output_parser)
+
+        # Nettoyer le texte pour ne garder que les données CSV
+        csv_data = "\n".join(re.findall(r'\"[^";]+\";\"[^";]+\";\"[^";]+\";\"[^";]+\"', response))
         try:
-            df = pd.read_csv(StringIO(response), sep=";", on_bad_lines="skip")
-            df.columns = [col.strip() for col in df.columns]
+            # Lire uniquement les données structurées en CSV
+            df = pd.read_csv(StringIO(csv_data), sep=";", on_bad_lines="skip")
+            df.columns = ["job name", "company", "location", "time_indication"]
+
             logger.info("We just keep idf cities")
             df = df.loc[df["location"].apply(lambda x: self.is_in_ile_de_france(x))]
+
             logger.info("We process date")
-            df["offer date"] = df["time indication"].apply(lambda x: self.convert_to_date(x))
-            df.drop(columns=["time indication"], inplace=True)
+            df["offer date"] = df["time_indication"].apply(lambda x: self.convert_to_date(x))
+            df.drop(columns=["time_indication"], inplace=True)
+
         except Exception as error:
-            logger.info("An error occured: %s", error)
+            logger.info("An error occurred: %s", error)
             logger.info("LLM Response is: %s", response)
+            logger.info("CSV Data is: %s", csv_data)
+
         return df
 
     @staticmethod
@@ -153,9 +162,13 @@ class JobDataFrameCreator(LLMManager):
             temp_string = temp_string.replace("publié ", "")
             temp_string = temp_string.replace("modifiée ", "")
             temp_string = temp_string.replace("modifié ", "")
+            temp_string = temp_string.replace("more than", "")
+            if "jours" in temp_string and "ago" in temp_string:
+                temp_string = temp_string.replace("jours", "days")
             # On s'occupe de certains cas particuliers:
             if "instant" in temp_string:
                 return base_date.strftime("%d-%m-%Y")
+
             parsed_date = dateparser.parse(
                 temp_string, languages=["fr", "en"], date_formats=["%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y"]  # noqa
             )
