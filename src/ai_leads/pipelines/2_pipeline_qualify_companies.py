@@ -53,7 +53,7 @@ def fill_missing_values(df_companies, column_name, fill_method):
     return df_companies
 
 
-def save_df_to_csv(df, file_path, sep=";"):
+def save_df_to_csv(df: pd.DataFrame, file_path: str, sep=";"):
     """Sauvegarder un DataFrame dans un fichier CSV."""
     try:
         df.to_csv(file_path, sep=sep, index=False)

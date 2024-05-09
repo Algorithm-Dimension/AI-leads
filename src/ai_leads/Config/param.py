@@ -27,7 +27,6 @@ TEMPLATE = """
                         e.g., Si c'est en anglais : "2 days ago", "today","1 week ago" …
                         e.g. Si c'est en français : "il y a deux jours" , "aujourd'hui",
                         "il y a une semaine", "il y a plus de 30 jours" …)
-    - contact information (email address or phone number)
 
     Write 'N.A.' where information is not available.
 
@@ -79,8 +78,8 @@ JOB_LIST_PIPELINE = [
     "Office Manager",
 ]
 
-# JOB_LIST_PIPELINE = ["Acheteur"]
-# SOURCE_LIST_PIPELINE = ["Cadre Emploi"]
+JOB_LIST_PIPELINE = ["Acheteur"]
+SOURCE_LIST_PIPELINE = ["Cadre Emploi"]
 
 LOCATION = "Paris"
 
