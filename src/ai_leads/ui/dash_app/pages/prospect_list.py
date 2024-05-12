@@ -13,7 +13,14 @@ from ai_leads import utils
 # Local application imports
 from ai_leads.Config.param import LAST_UPDATE, LEAD_FILE_PATH
 from ai_leads.ui.dash_app.app import app
-from ai_leads.ui.dash_app.components import add_contact, component_card, filter_sales, search_bar, filter_status
+from ai_leads.ui.dash_app.components import (
+    add_contact,
+    component_card,
+    filter_sales,
+    filter_past_interactions,
+    search_bar,
+    filter_status,
+)
 
 # Constants
 BASE_DATE_STR = LAST_UPDATE.strftime("%d/%m/%y")
@@ -44,8 +51,10 @@ def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> No
         # Normalize company name for matching
         normalized_company = utils.clean_str_unidecode(company)
         df_final_result_leads.loc[
-            df_final_result_leads["Entreprise"].apply(utils.clean_str_unidecode) == normalized_company, "Contacté"
-        ] = ("Oui" if state else "Non")
+            df_final_result_leads["Entreprise"].apply(utils.clean_str_unidecode)
+            == normalized_company,
+            "Contacté",
+        ] = "Oui" if state else "Non"
 
     # Save the updated DataFrame
     df_final_result_leads.to_csv(os.path.join(LEAD_FILE_PATH), sep=";", index=False)
@@ -56,6 +65,7 @@ def update_dataframe(n_clicks: Optional[int], checkbox_states: List[bool]) -> No
     State("search-input", "value"),
     Input("filter-status-dropdown", "value"),
     Input("filter-sales-dropdown", "value"),
+    Input("filter-past-interaction-dropdown", "value"),
     # Input("state-dropdown", "value"),
     # Input("segment-dropdown", "value"),
     Input("search-button", "n_clicks"),
@@ -65,6 +75,7 @@ def update_prospect_list(
     search_term="",
     selected_is_contacted=None,
     selected_sales=None,
+    selected_past_interactions=None,
     n_clicks_search_button=0,
     n_submit_search_input=0,
 ):
@@ -73,7 +84,9 @@ def update_prospect_list(
     if search_term:
         # Filter based on the search term
         filtered_prospects = df_final_result_leads.loc[
-            df_final_result_leads["Entreprise"].str.lower().str.contains(search_term.lower())
+            df_final_result_leads["Entreprise"]
+            .str.lower()
+            .str.contains(search_term.lower())
         ]
     else:
         # Select all prospects if no search term is provided
@@ -81,10 +94,20 @@ def update_prospect_list(
 
     # Filter prospect based on selected states
     if selected_is_contacted:
-        filtered_prospects = filtered_prospects[filtered_prospects["status"].isin(selected_is_contacted)]
+        filtered_prospects = filtered_prospects[
+            filtered_prospects["status"].isin(selected_is_contacted)
+        ]
 
     if selected_sales:
-        filtered_prospects = filtered_prospects[filtered_prospects["attributed_sale"].isin(selected_sales)]
+        filtered_prospects = filtered_prospects[
+            filtered_prospects["attributed_sale"].isin(selected_sales)
+        ]
+    if selected_past_interactions == "Oui":
+        filtered_prospects = filtered_prospects[
+            ~filtered_prospects["status"].isna()
+            | ~filtered_prospects["attributed_sale"].isna()
+            | ~filtered_prospects["Notes"].isna()
+        ]
     # Create prospect cards with an 'Overview' button
     prospect_cards_none = []
     prospect_cards_flex = []
@@ -120,7 +143,11 @@ layout = html.Div(
                         [
                             html.H1(
                                 "Plateforme de prospection pour Kara",
-                                style={"color": "#EEEEEE", "font-weight": "400", "text-shadow": "0px 0px 1px #000000"},
+                                style={
+                                    "color": "#EEEEEE",
+                                    "font-weight": "400",
+                                    "text-shadow": "0px 0px 1px #000000",
+                                },
                             ),
                             html.H3(
                                 "Votre liste de leads générée par l'intelligence artificielle",
@@ -164,7 +191,10 @@ layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.H5("Filtres"), html.I(className="bi bi-funnel")],
+                                    [
+                                        html.H5("Filtres"),
+                                        html.I(className="bi bi-funnel"),
+                                    ],
                                     style={
                                         "display": "flex",
                                         "flex-direction": "row",
@@ -174,12 +204,23 @@ layout = html.Div(
                                 ),
                                 filter_status.attributed_status_dropdown,
                                 filter_sales.attributed_sale_dropdown,
+                                filter_past_interactions.past_interactions_dropdown,
                             ],
-                            style={"flex-basis": "400px", "display": "flex", "flex-direction": "column", "gap": "16px"},
+                            style={
+                                "flex-basis": "400px",
+                                "display": "flex",
+                                "flex-direction": "column",
+                                "gap": "16px",
+                            },
                         ),
                         html.Div(
                             id="leads-list",
-                            style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
+                            style={
+                                "flex-grow": "1",
+                                "display": "flex",
+                                "flex-direction": "column",
+                                "gap": "20px",
+                            },
                         ),
                     ],
                     style={"display": "flex", "flex-direction": "row", "gap": "20px"},
@@ -221,9 +262,18 @@ layout = html.Div(
         ),
         html.Div(
             id="update-output",
-            style={"flex-grow": "1", "display": "flex", "flex-direction": "column", "gap": "20px"},
+            style={
+                "flex-grow": "1",
+                "display": "flex",
+                "flex-direction": "column",
+                "gap": "20px",
+            },
         ),
         # html.Div(id="container-for-badges"),
     ],
-    style={"display": "flex", "flex-direction": "column", "background-color": "#FFFFFF"},
+    style={
+        "display": "flex",
+        "flex-direction": "column",
+        "background-color": "#FFFFFF",
+    },
 )

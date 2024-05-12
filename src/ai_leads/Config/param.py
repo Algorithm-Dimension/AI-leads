@@ -54,7 +54,13 @@ OUTPUT_PARSER = None
 INDEED_NUMBER_PAGE = 3
 LINKEDIN_NUMBER_SCROLL = 10
 
-SOURCE_LIST_PIPELINE = ["Hello Work", "LinkedIn", "Indeed", "Cadre Emploi", "Welcome to the Jungle"]
+SOURCE_LIST_PIPELINE = [
+    "Hello Work",
+    "LinkedIn",
+    "Indeed",
+    "Cadre Emploi",
+    "Welcome to the Jungle",
+]
 JOB_LIST_PIPELINE = [
     "Acheteur",
     "Assistant administratif",
@@ -78,8 +84,8 @@ JOB_LIST_PIPELINE = [
     "Office Manager",
 ]
 
-JOB_LIST_PIPELINE = ["Acheteur"]
-SOURCE_LIST_PIPELINE = ["Indeed"]
+# JOB_LIST_PIPELINE = ["Acheteur"]
+# SOURCE_LIST_PIPELINE = ["Indeed"]
 
 LOCATION = "Paris"
 
@@ -89,8 +95,8 @@ DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
-LEAD_FILE_PATH = os.path.join("data", "leads_tests_5_may.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_5_may.csv")
+LEAD_FILE_PATH = os.path.join("data", "leads_5_may.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_5_may.csv")
 COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 
