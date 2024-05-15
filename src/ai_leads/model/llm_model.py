@@ -27,13 +27,13 @@ class LLMManager:
     def __init__(self, model_name: str = MODEL_NAME, temperature: float = 0.0):
         """Initialize the LLMManager with a model."""
         load_dotenv()
-        if model_name == "llama3-8b-8192":
+        if model_name == "llama3-8b-8192" or model_name == "llama3-80b-8192":
             self.llm = ChatGroq(
                 temperature=0,
                 model_name=model_name,
             )
-        # elif MODEL_NAME == "gpt-3.5-turbo-16k":
-        # self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
+        elif MODEL_NAME == "gpt-3.5-turbo-16k":
+            self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
 
     def prepare_prompt(
         self, template: str, input_vars: list = [], partial_vars: dict = {}

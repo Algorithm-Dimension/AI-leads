@@ -6,7 +6,7 @@ import pandas as pd
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.output_parsers.enum import EnumOutputParser
 
-MODEL_NAME = "llama3-8b-8192"  # gpt-3.5-turbo-16k
+MODEL_NAME = "llama3-8b-8192"  # gpt-3.5-turbo-16k, llama3-8b-8192
 
 # Constants
 DEFAULT_ENCODING_NAME = "cl100k_base"
@@ -95,8 +95,8 @@ DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
-LEAD_FILE_PATH = os.path.join("data", "leads_5_may.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_5_may.csv")
+LEAD_FILE_PATH = os.path.join("data", "leads_14_may.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_14_may.csv")
 COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
 CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
 

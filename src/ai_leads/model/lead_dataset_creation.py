@@ -5,7 +5,11 @@ import dateparser
 import pandas as pd
 
 from ai_leads import utils
-from ai_leads.Config.param import CompanyActivity, enum_parser_activity, template_find_activity
+from ai_leads.Config.param import (
+    CompanyActivity,
+    enum_parser_activity,
+    template_find_activity,
+)
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper
 
@@ -21,7 +25,11 @@ class LeadDataFrameConverter:
         df (pd.DataFrame): The input dataframe.
     """
 
-    def __init__(self, df: pd.DataFrame = pd.DataFrame(), scraper: WebpageScraper = WebpageScraper()):  # noqa
+    def __init__(
+        self,
+        df: pd.DataFrame = pd.DataFrame(),
+        scraper: WebpageScraper = WebpageScraper(),
+    ):  # noqa
         """
         Initializes the LeadDataFrameConverter with a dataframe.
 
@@ -74,7 +82,9 @@ class LeadDataFrameConverter:
         df_lead = df_lead.groupby("Entreprise").sum()
         df_lead.reset_index(inplace=True)
         df_lead.sort_values(
-            by=f"Nombre d'offres postés les {time_window} derniers jours", ascending=False, inplace=True  # noqa: E501
+            by=f"Nombre d'offres postés les {time_window} derniers jours",
+            ascending=False,
+            inplace=True,  # noqa: E501
         )
 
         return df_lead
@@ -120,18 +130,27 @@ class LeadDataFrameConverter:
                 output_parser = enum_parser_activity
                 format_instructions = output_parser.get_format_instructions()
                 html_raw_code_full = scraper.fetch_readable_text(url)
-                html_raw_code = self.llm_manager.return_prompt_beginning(html_raw_code_full)
+                html_raw_code = self.llm_manager.return_prompt_beginning(
+                    html_raw_code_full
+                )
                 prompt = llm_manager.prepare_prompt(
                     template_find_activity,
                     input_vars=["company", "html_raw_code"],
                     partial_vars={"format_instructions": format_instructions},
                 )
                 response = llm_manager.run_llm_chain(
-                    prompt, company=company, html_raw_code=html_raw_code, format_instructions=format_instructions
+                    prompt,
+                    company=company,
+                    html_raw_code=html_raw_code,
+                    format_instructions=format_instructions,
                 )
-                activity_sector = output_parser.parse(response).value
-            except Exception:
+                activity_sector = response.content
+            except Exception as error:
+                logger.info(
+                    "An error occured while determining activity sector: %s", error
+                )
                 activity_sector = CompanyActivity.OTHER.value
+            logger.info("Activity sector for %s: %s", company, activity_sector)
             activity_list.append(activity_sector)
 
         # La priorité est de reconnaitre les agences de recrutements, donc si un des liens
@@ -143,10 +162,8 @@ class LeadDataFrameConverter:
             return CompanyActivity.RECRUITING.value
         elif CompanyActivity.FORMATION_ECOLE.value in activity_list:
             return CompanyActivity.FORMATION_ECOLE.value
-        elif len(activity_list) == 0:
-            return CompanyActivity.OTHER.value
         else:
-            return activity_list[0]
+            return CompanyActivity.OTHER.value
 
     def verif_recruitment(self, company: str) -> bool:
         """
