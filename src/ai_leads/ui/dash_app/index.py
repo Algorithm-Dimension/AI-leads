@@ -58,6 +58,8 @@ if __name__ == "__main__":
     app.run_server(
         debug=not bool(os.environ.get("PRODUCTION")),
         host="0.0.0.0",
+        port=8050,
+        dev_tools_props_check=True,
     )
 
 # l'application est configurée pour s'exécuter sur le port 8050 en écoutant toutes les interfaces réseau (0.0.0.0)

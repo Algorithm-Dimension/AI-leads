@@ -3,7 +3,12 @@ import logging
 import pandas as pd
 
 from ai_leads import utils
-from ai_leads.Config.param import COMPANY_FILE_PATH, JOB_FILE_PATH, LEAD_FILE_PATH, CompanyActivity
+from ai_leads.Config.param import (
+    COMPANY_FILE_PATH,
+    JOB_FILE_PATH,
+    LEAD_FILE_PATH,
+    CompanyActivity,
+)
 from ai_leads.model.lead_dataset_creation import LeadDataFrameConverter
 
 # Configuration de la journalisation
@@ -22,15 +27,21 @@ def read_csv_file(file_path: str, sep=";") -> pd.DataFrame:
 
 def convert_jobs_to_leads(df_jobs: pd.DataFrame, time_window: int) -> pd.DataFrame:
     """Convertir les données des offres d'emploi en prospects."""
-    df_jobs.drop_duplicates(subset=["job name", "company", "location", "offer date", "source"], inplace=True)
+    df_jobs.drop_duplicates(
+        subset=["job name", "company", "location", "offer date", "source"], inplace=True
+    )
     dfConverter = LeadDataFrameConverter(df_jobs)
     return dfConverter.convert_to_lead_dataframe(time_window=time_window)
 
 
-def merge_leads_with_companies(df_leads: pd.DataFrame, df_company_list: pd.DataFrame) -> pd.DataFrame:
+def merge_leads_with_companies(
+    df_leads: pd.DataFrame, df_company_list: pd.DataFrame
+) -> pd.DataFrame:
     """Fusionner les données des prospects avec les informations des entreprises."""
     df_leads["company_join"] = df_leads["Entreprise"].apply(utils.clean_str_unidecode)
-    df_company_list["company_join"] = df_company_list["company"].apply(utils.clean_str_unidecode)
+    df_company_list["company_join"] = df_company_list["company"].apply(
+        utils.clean_str_unidecode
+    )
     df_merged = pd.merge(df_leads, df_company_list, on="company_join", how="left")
     df_merged.drop(columns=["company", "company_join"], inplace=True)
     return df_merged
@@ -39,7 +50,9 @@ def merge_leads_with_companies(df_leads: pd.DataFrame, df_company_list: pd.DataF
 def filter_leads_by_activity(df_leads: pd.DataFrame) -> pd.DataFrame:
     """Filtrer les prospects en excluant certains secteurs d'activité."""
     return df_leads.loc[
-        ~df_leads["activity_sector"].isin([CompanyActivity.RECRUITING.value, CompanyActivity.FORMATION_ECOLE.value])
+        ~df_leads["activity_sector"].isin(
+            [CompanyActivity.RECRUITING.value, CompanyActivity.FORMATION_ECOLE.value]
+        )
     ]
 
 

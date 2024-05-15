@@ -2,7 +2,7 @@ import pandas as pd
 from ai_leads.Config.param import CompanyActivity
 from ai_leads import utils
 
-df = pd.read_csv("data/table_companies.csv", sep=";")
+# df = pd.read_csv("data/table_companies.csv", sep=";")
 
 
 def clean_str_classic(text):
@@ -24,12 +24,18 @@ def clean_str_classic(text):
 
 # df.to_csv("data/table_companies.csv", sep=";", index=False)
 
-df_contact = pd.read_csv("data/table_contact_test.csv", sep=";")
-contact_columns = list(df_contact.columns)
-df["clean_company"] = df["company"].apply(utils.clean_str_unidecode)
-df_contact["clean_company"] = df_contact["company"].apply(utils.clean_str_unidecode)
-df_contact.drop("company", axis=1, inplace=True)
-df_contact = pd.merge(df_contact, df, on="clean_company", how="right")
-df_contact.drop(["clean_company"], axis=1, inplace=True)
-df_contact = df_contact[contact_columns]
-df_contact.to_csv("data/table_contact_test.csv", sep=";", index=False)
+# df_contact = pd.read_csv("data/table_contact_test.csv", sep=";")
+# contact_columns = list(df_contact.columns)
+# df["clean_company"] = df["company"].apply(utils.clean_str_unidecode)
+# df_contact["clean_company"] = df_contact["company"].apply(utils.clean_str_unidecode)
+# df_contact.drop("company", axis=1, inplace=True)
+# df_contact = pd.merge(df_contact, df, on="clean_company", how="right")
+# df_contact.drop(["clean_company"], axis=1, inplace=True)
+# df_contact = df_contact[contact_columns]
+# df_contact.to_csv("data/table_contact_test.csv", sep=";", index=False)
+
+df_lead = pd.read_csv("data/leads_14_may.csv", sep=";")
+df_lead["clean_company"] = df_lead["Entreprise"].apply(utils.clean_str_unidecode)
+df_lead.drop_duplicates(subset=["clean_company"], inplace=True)
+df_lead.drop(["clean_company"], axis=1, inplace=True)
+df_lead.to_csv("data/leads_14_may.csv", sep=";", index=False)

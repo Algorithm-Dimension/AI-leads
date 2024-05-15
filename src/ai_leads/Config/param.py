@@ -13,7 +13,7 @@ DEFAULT_ENCODING_NAME = "cl100k_base"
 CONTEXT_WINDOW = 8192
 DEFAULT_RESEARCH_TYPE_THRESHOLD = 2
 
-LAST_UPDATE = datetime(2024, 2, 4)
+LAST_UPDATE = datetime(2024, 5, 14)
 BASE_DATE = datetime.today()
 # BASE_DATE = datetime(2023, 12, 4)
 TEMPLATE = """
@@ -95,10 +95,10 @@ DATA_RECRUITING_PATH = os.path.join("data", "list_recruiting_company.txt")
 DATA_NON_RECRUITING_PATH = os.path.join("data", "list_non_recruiting_company.txt")
 DATA_IDF_CITY_PATH = os.path.join("data", "list_city_idf.txt")
 DATA_LOCATION_PATH = os.path.join("data", "list_idf_locations.txt")
-LEAD_FILE_PATH = os.path.join("data", "leads_tests_5_may_groq.csv")
-JOB_FILE_PATH = os.path.join("data", "jobs_tests_5_may_groq.csv")
-COMPANY_FILE_PATH = os.path.join("data", "table_companies_groq.csv")
-CONTACT_FILE_PATH = os.path.join("data", "table_contact_test.csv")
+LEAD_FILE_PATH = os.path.join("data", "leads_14_may.csv")
+JOB_FILE_PATH = os.path.join("data", "jobs_14_may.csv")
+COMPANY_FILE_PATH = os.path.join("data", "table_companies.csv")
+CONTACT_FILE_PATH = os.path.join("data", "table_contact.csv")
 
 
 class CompanyActivity(Enum):

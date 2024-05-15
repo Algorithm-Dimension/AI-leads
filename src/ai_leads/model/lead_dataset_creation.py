@@ -9,6 +9,7 @@ from ai_leads.Config.param import (
     CompanyActivity,
     enum_parser_activity,
     template_find_activity,
+    BASE_DATE,
 )
 from ai_leads.model.llm_model import LLMManager
 from ai_leads.model.navigator import WebpageScraper

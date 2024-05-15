@@ -85,7 +85,7 @@ def component_card_function(
                             },
                         ),
                         html.P(
-                            ["Denière mise à jour: le ", BASE_DATE_STR],
+                            ["Dernière mise à jour: le ", BASE_DATE_STR],
                             style={"margin": "0"},
                         ),
                         html.P(
