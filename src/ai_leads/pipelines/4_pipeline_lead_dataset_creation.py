@@ -72,6 +72,14 @@ def main():
         df_company_list = read_csv_file(COMPANY_FILE_PATH)
         df_leads = merge_leads_with_companies(df_leads, df_company_list)
         df_leads = filter_leads_by_activity(df_leads)
+
+        df_leads["clean_company"] = df_leads["Entreprise"].apply(
+            utils.clean_str_unidecode
+        )
+        df_leads.drop_duplicates(subset=["clean_company"], inplace=True)
+        df_leads.drop(["clean_company"], axis=1, inplace=True)
+        df_leads.to_csv("data/leads_14_may.csv", sep=";", index=False)
+
         save_to_csv(df_leads, LEAD_FILE_PATH)
     except Exception as e:
         logger.error(f"Une erreur est survenue : {e}")

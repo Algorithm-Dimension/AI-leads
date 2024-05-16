@@ -31,6 +31,7 @@ class LLMManager:
             self.llm = ChatGroq(
                 temperature=0,
                 model_name=model_name,
+                api_key="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",
             )
         elif MODEL_NAME == "gpt-3.5-turbo-16k":
             self.llm = ChatOpenAI(temperature=temperature, model_name=model_name)
